@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTN MoMo Merchant | Premium</title>
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+</head>
+<body>
+
+<nav>
+    <div class="logo-area">
+        <img src="/src/assets/logo.png" alt="MTN MoMo QR Merchant" style="height: 40px; object-fit: contain;">
+    </div>
+    <span class="nav-brand">MTN MOMO QRCODE</span>
+    <button class="get-started">Get Started</button>
+</nav>
+
+<section class="hero-container">
+    <div class="particles" id="particle-container"></div>
+
+    <div class="hero-wrapper">
+        <div class="hero-content">
+            <span class="hero-badge">Digital Payments · Cameroon</span>
+            <h1>Accept Payments<br>with Your Own<br><span>MTN QR Code</span></h1>
+            <p>Empower your business with instant MoMo QR codes. Secure, cashless, and blazing fast for every Cameroonian entrepreneur.</p>
+            
+            <a href="/form.html" class="btn-main">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect><path d="M14 14h3v3h-3z"></path><path d="M18 18h3v3h-3z"></path><path d="M18 14h3v3h-3z"></path><path d="M14 18h3v3h-3z"></path></svg>
+                Generate My QR Code
+            </a>
+        </div>
+
+        <div class="hero-visual">
+            <div class="phone-mockup">
+                <div class="phone-screen">
+                    <div class="phone-header">
+                        <p>MY MERCHANT ID: 677 890 123</p>
+                        <h3>Scan to Pay</h3>
+                    </div>
+                    
+                    <div class="qr-container">
+                        <div class="qr-wrapper">
+                            <div class="scan-line"></div>
+                            <img src="https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=MTN-Cameroon-Merchant" alt="QR Code" style="width: 150px; display: block;">
+                        </div>
+                        <p style="margin-top: 15px; font-size: 14px; font-weight: 700; color: #555;">Boutique Mama Ngono</p>
+                    </div>
+
+                    <div class="phone-footer">
+                        <button class="btn-download">Download QR</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<script type="module" src="/src/main.ts"></script>
+</body>
+</html>

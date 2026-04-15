@@ -1,0 +1,613 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MTN Business | QR Portal</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --mtn-yellow: #FFCC00;
+            --mtn-blue: #004F91;
+        }
+        body {
+            background-color: #f1f5f9;
+            font-family: 'Poppins', sans-serif;
+            overflow: hidden;
+        }
+        .poster-container { perspective: 1200px; }
+        .poster-canvas {
+            width: 380px;
+            height: 560px;
+            background: var(--mtn-yellow);
+            border-radius: 40px;
+            position: relative;
+            overflow: hidden;
+            box-shadow: 0 50px 100px -20px rgba(0, 79, 145, 0.35);
+            border: 10px solid white;
+        }
+        .wave-bottom {
+            background-color: var(--mtn-blue);
+            height: 140px;
+            width: 150%;
+            position: absolute;
+            bottom: -30px;
+            left: -25%;
+            transform: rotate(-10deg);
+            z-index: 1;
+        }
+        #qrcode img {
+            margin: 0 auto;
+            border: 15px solid white;
+            border-radius: 30px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
+        }
+        .glass-panel {
+            background: rgba(255, 255, 255, 0.9);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+        }
+        .error-message {
+            background-color: #fee2e2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-top: 16px;
+            font-size: 14px;
+            display: none;
+        }
+        .error-message.show {
+            display: block;
+        }
+        .print-btn {
+            display: none;
+            margin-top: 16px;
+            background: var(--mtn-yellow);
+            color: black;
+            border: none;
+            padding: 16px 32px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            width: 100%;
+        }
+        .print-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
+        }
+        .print-btn.show {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        
+        /* Print Styles */
+        @media print {
+            body {
+                background: white !important;
+                overflow: visible;
+            }
+            #formArea,
+            .error-message,
+            .print-btn,
+            #saveBtn,
+            #updateBtn,
+            #merchantCheckModal {
+                display: none !important;
+            }
+            .max-w-6xl {
+                display: flex !important;
+                justify-content: center;
+                align-items: center;
+                width: 100% !important;
+                max-width: 100% !important;
+                grid-template-columns: 1fr !important;
+            }
+            #posterArea {
+                opacity: 1 !important;
+                transform: none !important;
+                page-break-inside: avoid;
+            }
+            .poster-canvas {
+                box-shadow: none !important;
+                border: 15px solid white !important;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            .poster-container {
+                perspective: none !important;
+            }
+        }
+
+        /* Modal Styles */
+        #merchantCheckModal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            backdrop-filter: blur(5px);
+        }
+        .modal-content {
+            background: white;
+            padding: 40px;
+            border-radius: 30px;
+            max-width: 500px;
+            width: 90%;
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            text-align: center;
+        }
+        .modal-content h2 {
+            color: var(--mtn-blue);
+            font-size: 24px;
+            font-weight: 800;
+            margin-bottom: 20px;
+        }
+        .modal-content p {
+            color: #666;
+            margin-bottom: 25px;
+            font-size: 14px;
+        }
+        .modal-input {
+            width: 100%;
+            padding: 16px 20px;
+            border: 2px solid #e5e7eb;
+            border-radius: 12px;
+            font-size: 18px;
+            text-align: center;
+            margin-bottom: 20px;
+            outline: none;
+            transition: border-color 0.3s;
+        }
+        .modal-input:focus {
+            border-color: var(--mtn-yellow);
+        }
+        .modal-btn {
+            width: 100%;
+            padding: 16px;
+            background: var(--mtn-yellow);
+            color: black;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 16px;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-bottom: 12px;
+        }
+        .modal-btn:hover {
+            transform: scale(1.02);
+            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
+        }
+        .modal-btn.secondary {
+            background: #f3f4f6;
+            color: #374151;
+        }
+        .modal-error {
+            color: #dc2626;
+            font-size: 13px;
+            margin-top: 10px;
+            display: none;
+        }
+        .modal-error.show {
+            display: block;
+        }
+    </style>
+</head>
+<body class="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_bottom_left,_#FFCC0044,_transparent_600px)]">
+
+    <!-- Merchant Code Check Modal -->
+    <div id="merchantCheckModal">
+        <div class="modal-content">
+            <h2>Merchant Portal</h2>
+            <p style="margin-bottom: 8px; font-weight: 600;">Have you generated a QR code with us before?</p>
+            <p style="font-size: 13px; color: #888; margin-bottom: 20px;">Enter your merchant code below to retrieve your existing QR code poster, or select "I am a new merchant" to create one.</p>
+            <input type="text" id="checkMerchantCode" class="modal-input" placeholder="Enter your merchant code (e.g., 12XX)" maxlength="15">
+            <button onclick="checkMerchant()" class="modal-btn">RETRIEVE MY QR CODE</button>
+            <div style="margin: 15px 0; position: relative; text-align: center;">
+                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e5e7eb;"></div>
+                <span style="position: relative; background: white; padding: 0 15px; color: #9ca3af; font-size: 12px; text-transform: uppercase;">Or</span>
+            </div>
+            <button onclick="skipCheck()" class="modal-btn secondary">I am a new merchant</button>
+            <div id="modalError" class="modal-error"></div>
+        </div>
+    </div>
+
+    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10" id="mainContent" style="display: none;">
+        
+        <div class="poster-container flex flex-col items-center justify-center opacity-0" id="posterArea">
+            <div class="poster-canvas flex flex-col items-center justify-center">
+                <div class="absolute top-12 z-10 bg-white py-3 px-8 rounded-full shadow-lg flex items-center gap-3">
+                    <img src="/src/assets/logo.png" alt="MTN MoMo QR Merchant" style="height: 32px; object-fit: contain;">
+                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Business</span>
+                </div>
+
+                <p class="absolute top-32 z-10 text-[#004F91] font-extrabold text-xl tracking-[0.2em] uppercase opacity-90">Scan to Pay</p>
+                
+                <div id="qrcode" class="z-10 transition-transform duration-500"></div>
+
+                <div class="absolute bottom-10 z-20 text-white font-bold tracking-widest text-xs opacity-60">
+                    POWERED BY MOMO TECHNOLOGY
+                </div>
+
+                <div class="wave-bottom"></div>
+            </div>
+        </div>
+
+        <div class="glass-panel p-10 lg:p-14 rounded-[50px] shadow-2xl opacity-0" id="formArea">
+            <header class="mb-12">
+                <h3 class="text-4xl font-black text-[#004F91] mb-3 leading-tight">Merchant<br>Generator</h3>
+                <div class="h-1.5 w-20 bg-[#FFCC00] rounded-full"></div>
+            </header>
+
+            <div class="space-y-10">
+                <div class="group">
+                    <label class="text-xs font-black text-gray-400 uppercase tracking-tighter mb-1 block">Merchant Name *</label>
+                    <input type="text" id="inputName" oninput="updatePoster()" placeholder="e.g. Vision Énergie" 
+                        class="w-full px-0 py-3 bg-transparent border-b-2 border-gray-200 focus:border-[#FFCC00] text-xl font-medium outline-none transition-all">
+                </div>
+
+                <div class="grid grid-cols-2 gap-12">
+                    <div class="group">
+                        <label class="text-xs font-black text-gray-400 uppercase tracking-tighter mb-1 block">Merchant Code (Momo) *</label>
+                        <input type="text" id="inputCode" oninput="updatePoster()" placeholder="677227..." 
+                            class="w-full px-0 py-3 bg-transparent border-b-2 border-gray-200 focus:border-[#FFCC00] text-xl font-medium outline-none transition-all">
+                    </div>
+                    <div class="group">
+                        <label class="text-xs font-black text-gray-400 uppercase tracking-tighter mb-1 block">City *</label>
+                        <input type="text" id="inputCity" oninput="updatePoster()" placeholder="e.g. BAFOUSSAM" 
+                            class="w-full px-0 py-3 bg-transparent border-b-2 border-gray-200 focus:border-[#FFCC00] text-xl font-medium outline-none transition-all">
+                    </div>
+                </div>
+
+                <div class="pt-8">
+                    <button onclick="saveData()" id="saveBtn" class="w-full bg-[#004F91] text-white font-bold text-lg py-6 rounded-3xl hover:bg-[#002e54] shadow-xl transform active:scale-95 transition-all duration-300 flex items-center justify-center gap-4">
+                        GENERATE AND SAVE
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
+                    </button>
+                    <button onclick="updateData()" id="updateBtn" class="w-full bg-[#22c55e] text-white font-bold text-lg py-6 rounded-3xl hover:bg-[#16a34a] shadow-xl transform active:scale-95 transition-all duration-300 flex items-center justify-center gap-4" style="display: none;">
+                        UPDATE
+                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
+                    </button>
+                    <button onclick="printPoster()" id="printBtn" class="print-btn">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
+                        PRINT ONLY
+                    </button>
+                    <button onclick="printPoster()" id="printOnlyBtn" class="print-btn" style="display: none;">
+                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
+                        PRINT POSTER
+                    </button>
+                    <div id="errorMessage" class="error-message"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
+        
+        const supabaseUrl = 'https://vnqysheyehtyciswsoua.supabase.co'
+        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZucXlzaGV5ZWh0eWNpc3dzb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNDI2MTUsImV4cCI6MjA5MTgxODYxNX0.rVcG0TKrnNPsoSPiGIvNdSPtt7zFBk0PO32xvku-_fk'
+        
+        const supabase = createClient(supabaseUrl, supabaseKey)
+        
+        window.supabase = supabase
+    </script>
+
+    <script>
+        let existingMerchantId = null;
+        let isExistingMerchant = false;
+
+        const qrcode = new QRCode(document.getElementById("qrcode"), {
+            text: "000201010211",
+            width: 240,
+            height: 240,
+            colorDark : "#004F91",
+            colorLight : "#ffffff",
+            correctLevel : QRCode.CorrectLevel.H
+        });
+
+        function generateMomoPayload(name, code, city) {
+            const cleanName = name.substring(0, 14).toLowerCase();
+            const cleanCity = city.substring(0, 14).toUpperCase();
+            
+            let payload = "00020101021135370014A0000006561010010512002020";
+            payload += code;
+            payload += "5204411153039505802CM59";
+            payload += cleanName.length.toString().padStart(2, '0') + cleanName;
+            payload += "60";
+            payload += cleanCity.length.toString().padStart(2, '0') + cleanCity;
+            payload += "6250110300050390014A00000065610100117merchant_purchase63040EBD";
+            
+            return payload;
+        }
+
+        function updatePoster() {
+            const name = document.getElementById('inputName').value || "merchant";
+            const code = document.getElementById('inputCode').value || "000000";
+            const city = document.getElementById('inputCity').value || "DOUALA";
+
+            const momoData = generateMomoPayload(name, code, city);
+            
+            qrcode.clear();
+            qrcode.makeCode(momoData);
+            
+            gsap.fromTo("#qrcode", { scale: 0.95 }, { scale: 1, duration: 0.3, ease: "back.out" });
+        }
+
+        async function checkMerchant() {
+            const code = document.getElementById('checkMerchantCode').value.trim();
+            const errorDiv = document.getElementById('modalError');
+            
+            if (!code) {
+                errorDiv.textContent = "Please enter your merchant code";
+                errorDiv.classList.add('show');
+                return;
+            }
+
+            try {
+                const { data, error } = await window.supabase
+                    .from('merchant_qr_codes')
+                    .select('*')
+                    .eq('merchant_code', code)
+                    .single();
+
+                if (error && error.code !== 'PGRST116') {
+                    throw error;
+                }
+
+                if (data) {
+                    // Merchant exists - load data
+                    existingMerchantId = data.id;
+                    isExistingMerchant = true;
+                    
+                    // Fill form with existing data
+                    document.getElementById('inputName').value = data.merchant_name;
+                    document.getElementById('inputCode').value = data.merchant_code;
+                    document.getElementById('inputCity').value = data.city;
+                    
+                    // Update poster
+                    updatePoster();
+                    
+                    // Switch buttons for existing merchant
+                    document.getElementById('saveBtn').style.display = 'none';
+                    document.getElementById('updateBtn').style.display = 'flex';
+                    document.getElementById('printBtn').style.display = 'none';
+                    document.getElementById('printOnlyBtn').style.display = 'flex';
+                    document.getElementById('printOnlyBtn').classList.add('show');
+                    
+                    // Close modal and show main content
+                    closeModal();
+                    
+                    // Ensure main content is visible
+                    document.getElementById('mainContent').style.display = 'grid';
+                    
+                    // Make elements visible immediately (fallback)
+                    document.getElementById('posterArea').style.opacity = '1';
+                    document.getElementById('formArea').style.opacity = '1';
+                    
+                    // Animate poster float
+                    gsap.to(".poster-canvas", { y: -15, rotateZ: 1, repeat: -1, yoyo: true, duration: 4, ease: "sine.inOut" });
+                    
+                } else {
+                    // Merchant not found - show error
+                    errorDiv.textContent = "Merchant code not found. Please check your code or click 'I am a new merchant' below.";
+                    errorDiv.classList.add('show');
+                }
+            } catch (error) {
+                console.error('Error checking merchant:', error);
+                errorDiv.textContent = "Error checking merchant. Please try again.";
+                errorDiv.classList.add('show');
+            }
+        }
+
+        function skipCheck() {
+            closeModal();
+            showNewMerchantForm();
+        }
+
+        function closeModal() {
+            document.getElementById('merchantCheckModal').style.display = 'none';
+        }
+
+        function showNewMerchantForm() {
+            document.getElementById('mainContent').style.display = 'grid';
+            
+            // Show new merchant buttons
+            document.getElementById('saveBtn').style.display = 'flex';
+            document.getElementById('updateBtn').style.display = 'none';
+            document.getElementById('printBtn').style.display = 'none';
+            document.getElementById('printOnlyBtn').style.display = 'none';
+            
+            // Ensure elements are visible (fallback)
+            document.getElementById('posterArea').style.opacity = '1';
+            document.getElementById('formArea').style.opacity = '1';
+            
+            // Animate poster float
+            gsap.to(".poster-canvas", { y: -15, rotateZ: 1, repeat: -1, yoyo: true, duration: 4, ease: "sine.inOut" });
+        }
+
+        function validateInputs(name, code, city) {
+            const errors = [];
+            
+            if (!name || name.trim() === '') {
+                errors.push('Merchant name is required');
+            }
+            if (!code || code.trim() === '') {
+                errors.push('Merchant code is required');
+            }
+            if (!city || city.trim() === '') {
+                errors.push('City is required');
+            }
+            
+            if (code && !/^\d+$/.test(code)) {
+                errors.push('Merchant code must contain only numbers');
+            }
+            
+            return errors;
+        }
+
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            errorDiv.textContent = message;
+            errorDiv.classList.add('show');
+            
+            setTimeout(() => {
+                errorDiv.classList.remove('show');
+            }, 5000);
+        }
+
+        async function saveData() {
+            const btn = document.getElementById('saveBtn');
+            const printBtn = document.getElementById('printBtn');
+            const name = document.getElementById('inputName').value.trim();
+            const code = document.getElementById('inputCode').value.trim();
+            const city = document.getElementById('inputCity').value.trim();
+            
+            const validationErrors = validateInputs(name, code, city);
+            if (validationErrors.length > 0) {
+                showError(validationErrors.join('. '));
+                return;
+            }
+            
+            const qrPayload = generateMomoPayload(name, code, city);
+            
+            btn.innerHTML = `SAVING... <div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>`;
+            btn.disabled = true;
+            
+            try {
+                const { data, error } = await window.supabase
+                    .from('merchant_qr_codes')
+                    .insert([
+                        {
+                            merchant_name: name,
+                            merchant_code: code,
+                            city: city,
+                            qr_payload: qrPayload
+                        }
+                    ])
+                    .select();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                btn.innerHTML = `MERCHANT SAVED! ✓`;
+                gsap.to(".poster-canvas", { borderColor: "#22c55e", duration: 0.5, yoyo: true, repeat: 1 });
+                
+                // Show print button
+                printBtn.classList.add('show');
+                
+                setTimeout(() => {
+                    btn.innerHTML = `GENERATE AND SAVE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>`;
+                    btn.disabled = false;
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error saving merchant:', error);
+                showError('Failed to save merchant. Please try again.');
+                
+                btn.innerHTML = `GENERATE AND SAVE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>`;
+                btn.disabled = false;
+            }
+        }
+
+        async function updateData() {
+            const btn = document.getElementById('updateBtn');
+            const name = document.getElementById('inputName').value.trim();
+            const code = document.getElementById('inputCode').value.trim();
+            const city = document.getElementById('inputCity').value.trim();
+            
+            const validationErrors = validateInputs(name, code, city);
+            if (validationErrors.length > 0) {
+                showError(validationErrors.join('. '));
+                return;
+            }
+            
+            const qrPayload = generateMomoPayload(name, code, city);
+            
+            btn.innerHTML = `UPDATING... <div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>`;
+            btn.disabled = true;
+            
+            try {
+                const { data, error } = await window.supabase
+                    .from('merchant_qr_codes')
+                    .update({
+                        merchant_name: name,
+                        city: city,
+                        qr_payload: qrPayload,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', existingMerchantId)
+                    .select();
+                
+                if (error) {
+                    throw error;
+                }
+                
+                btn.innerHTML = `UPDATED! ✓`;
+                gsap.to(".poster-canvas", { borderColor: "#22c55e", duration: 0.5, yoyo: true, repeat: 1 });
+                
+                setTimeout(() => {
+                    btn.innerHTML = `UPDATE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
+                    btn.disabled = false;
+                }, 3000);
+                
+            } catch (error) {
+                console.error('Error updating merchant:', error);
+                showError('Failed to update merchant. Please try again.');
+                
+                btn.innerHTML = `UPDATE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
+                btn.disabled = false;
+            }
+        }
+
+        function printPoster() {
+            const formArea = document.getElementById('formArea');
+            
+            // Temporarily hide form
+            formArea.style.display = 'none';
+            
+            // Print
+            window.print();
+            
+            // Restore form after print
+            setTimeout(() => {
+                formArea.style.display = 'block';
+            }, 100);
+        }
+        
+        // Initialize page
+        window.onload = () => {
+            // Show modal immediately
+            document.getElementById('merchantCheckModal').style.display = 'flex';
+            document.getElementById('mainContent').style.display = 'none';
+        };
+        
+        // Allow Enter key in modal
+        document.getElementById('checkMerchantCode').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                checkMerchant();
+            }
+        });
+        
+        window.updatePoster = updatePoster;
+        window.saveData = saveData;
+        window.updateData = updateData;
+        window.printPoster = printPoster;
+        window.checkMerchant = checkMerchant;
+        window.skipCheck = skipCheck;
+    </script>
+</body>
+</html>

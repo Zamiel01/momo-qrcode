@@ -1,0 +1,17 @@
+import { defineConfig } from 'vite'
+import vue from '@vitejs/plugin-vue'
+import { resolve } from 'path'
+
+// https://vite.dev/config/
+export default defineConfig({
+  plugins: [vue()],
+  build: {
+    rollupOptions: {
+      input: {
+        main: resolve(__dirname, 'index.html'),
+        form: resolve(__dirname, 'form.html'),
+        admin: resolve(__dirname, 'admin.html'),
+      },
+    },
+  },
+})
