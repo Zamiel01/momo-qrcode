@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>MTN Business | QR Portal</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdn.tailwindcss.com"></script>
@@ -13,512 +13,593 @@
             --mtn-yellow: #FFCC00;
             --mtn-blue: #004F91;
         }
+        * { box-sizing: border-box; }
+        html, body {
+            margin: 0;
+            padding: 0;
+            height: 100%;
+        }
         body {
             background-color: #f1f5f9;
             font-family: 'Poppins', sans-serif;
-            overflow: hidden;
+            overflow-x: hidden;
+            overflow-y: auto;
         }
-        .poster-container { perspective: 1200px; }
+
+        /* ─── Page wrapper ─── */
+        .page-wrapper {
+            min-height: 100vh;
+            display: flex;
+            align-items: flex-start;
+            justify-content: center;
+            padding: 24px 16px 40px;
+            background: radial-gradient(circle at bottom left, rgba(255,204,0,.27) 0%, transparent 60%);
+        }
+
+        /* ─── Two-column layout ─── */
+        .main-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 48px;
+            align-items: center;
+            max-width: 960px;
+            width: 100%;
+        }
+
+        /* ─── Tablet: stack vertically ─── */
+        @media (max-width: 900px) {
+            .main-grid {
+                grid-template-columns: 1fr;
+                gap: 32px;
+            }
+            .poster-col {
+                order: 1;
+            }
+            .form-col {
+                order: 2;
+            }
+        }
+
+        /* ─── Mobile ─── */
+        @media (max-width: 480px) {
+            .page-wrapper {
+                padding: 16px 12px 32px;
+            }
+            .main-grid {
+                gap: 24px;
+            }
+        }
+
+        /* ─── Poster ─── */
+        .poster-col {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .poster-container { perspective: 1200px; width: 100%; display: flex; justify-content: center; }
         .poster-canvas {
-            width: 380px;
-            height: 560px;
+            width: 320px;
+            height: 480px;
             background: var(--mtn-yellow);
-            border-radius: 40px;
+            border-radius: 32px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 50px 100px -20px rgba(0, 79, 145, 0.35);
-            border: 10px solid white;
+            box-shadow: 0 40px 80px -20px rgba(0, 79, 145, 0.30);
+            border: 8px solid white;
+            flex-shrink: 0;
         }
+
+        @media (max-width: 380px) {
+            .poster-canvas {
+                width: 280px;
+                height: 420px;
+            }
+        }
+
         .wave-bottom {
             background-color: var(--mtn-blue);
-            height: 140px;
+            height: 120px;
             width: 150%;
             position: absolute;
-            bottom: -30px;
+            bottom: -28px;
             left: -25%;
             transform: rotate(-10deg);
             z-index: 1;
         }
         #qrcode img {
             margin: 0 auto;
-            border: 15px solid white;
-            border-radius: 30px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.1);
-        }
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.9);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-        }
-        .error-message {
-            background-color: #fee2e2;
-            color: #dc2626;
-            padding: 12px 16px;
-            border-radius: 8px;
-            margin-top: 16px;
-            font-size: 14px;
-            display: none;
-        }
-        .error-message.show {
+            border: 12px solid white;
+            border-radius: 24px;
+            box-shadow: 0 16px 32px rgba(0,0,0,.10);
             display: block;
         }
-        .print-btn {
-            display: none;
-            margin-top: 16px;
-            background: var(--mtn-yellow);
-            color: black;
-            border: none;
-            padding: 16px 32px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            width: 100%;
+
+        /* ─── Form glass panel ─── */
+        .glass-panel {
+            background: rgba(255,255,255,.92);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,.55);
+            border-radius: 40px;
+            padding: 40px 40px;
+            box-shadow: 0 24px 60px rgba(0,79,145,.12);
         }
-        .print-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
-        }
-        .print-btn.show {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-        }
-        
-        /* Print Styles */
-        @media print {
-            body {
-                background: white !important;
-                overflow: visible;
-            }
-            #formArea,
-            .error-message,
-            .print-btn,
-            #saveBtn,
-            #updateBtn,
-            #merchantCheckModal {
-                display: none !important;
-            }
-            .max-w-6xl {
-                display: flex !important;
-                justify-content: center;
-                align-items: center;
-                width: 100% !important;
-                max-width: 100% !important;
-                grid-template-columns: 1fr !important;
-            }
-            #posterArea {
-                opacity: 1 !important;
-                transform: none !important;
-                page-break-inside: avoid;
-            }
-            .poster-canvas {
-                box-shadow: none !important;
-                border: 15px solid white !important;
-                print-color-adjust: exact;
-                -webkit-print-color-adjust: exact;
-            }
-            .poster-container {
-                perspective: none !important;
+        @media (max-width: 640px) {
+            .glass-panel {
+                border-radius: 28px;
+                padding: 28px 20px;
             }
         }
 
-        /* Modal Styles */
+        /* ─── Form inputs ─── */
+        .field-group { margin-bottom: 28px; }
+        .field-label {
+            display: block;
+            font-size: 11px;
+            font-weight: 800;
+            color: #9ca3af;
+            text-transform: uppercase;
+            letter-spacing: .08em;
+            margin-bottom: 4px;
+        }
+        .field-input {
+            width: 100%;
+            padding: 10px 0;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid #e5e7eb;
+            font-family: 'Poppins', sans-serif;
+            font-size: 18px;
+            font-weight: 500;
+            color: #111;
+            outline: none;
+            transition: border-color .25s;
+        }
+        .field-input:focus { border-bottom-color: var(--mtn-yellow); }
+
+        @media (max-width: 480px) {
+            .field-input { font-size: 16px; }
+        }
+
+        /* ─── Two-col sub-grid ─── */
+        .two-col-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+        @media (max-width: 420px) {
+            .two-col-grid {
+                grid-template-columns: 1fr;
+                gap: 0;
+            }
+        }
+
+        /* ─── Buttons ─── */
+        .btn-primary {
+            width: 100%;
+            background: var(--mtn-blue);
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 18px 24px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all .3s;
+            box-shadow: 0 8px 24px rgba(0,79,145,.25);
+        }
+        .btn-primary:hover { background: #002e54; transform: translateY(-1px); }
+        .btn-primary:active { transform: scale(.97); }
+
+        .btn-update {
+            width: 100%;
+            background: #22c55e;
+            color: white;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 16px;
+            padding: 18px 24px;
+            border: none;
+            border-radius: 24px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            transition: all .3s;
+            box-shadow: 0 8px 24px rgba(34,197,94,.25);
+        }
+        .btn-update:hover { background: #16a34a; }
+        .btn-update.show { display: flex; }
+
+        .btn-print {
+            width: 100%;
+            background: var(--mtn-yellow);
+            color: black;
+            font-family: 'Poppins', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            padding: 16px 24px;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            margin-top: 14px;
+            transition: all .3s;
+        }
+        .btn-print:hover { transform: scale(1.02); box-shadow: 0 8px 20px rgba(255,204,0,.35); }
+        .btn-print.show { display: flex; }
+
+        .error-message {
+            background: #fee2e2;
+            color: #dc2626;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-top: 14px;
+            font-size: 13px;
+            display: none;
+        }
+        .error-message.show { display: block; }
+
+        /* ─── Modal ─── */
         #merchantCheckModal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.7);
+            inset: 0;
+            background: rgba(0,0,0,.70);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
             backdrop-filter: blur(5px);
+            padding: 16px;
         }
         .modal-content {
             background: white;
-            padding: 40px;
-            border-radius: 30px;
-            max-width: 500px;
-            width: 90%;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            padding: 36px 32px;
+            border-radius: 28px;
+            max-width: 460px;
+            width: 100%;
+            box-shadow: 0 24px 50px rgba(0,0,0,.45);
             text-align: center;
+        }
+        @media (max-width: 480px) {
+            .modal-content {
+                padding: 28px 20px;
+                border-radius: 22px;
+            }
         }
         .modal-content h2 {
             color: var(--mtn-blue);
-            font-size: 24px;
+            font-size: 22px;
             font-weight: 800;
-            margin-bottom: 20px;
+            margin: 0 0 14px;
         }
         .modal-content p {
             color: #666;
-            margin-bottom: 25px;
-            font-size: 14px;
+            font-size: 13px;
+            line-height: 1.6;
+            margin: 0 0 18px;
         }
         .modal-input {
             width: 100%;
-            padding: 16px 20px;
+            padding: 14px 18px;
             border: 2px solid #e5e7eb;
             border-radius: 12px;
-            font-size: 18px;
+            font-family: 'Poppins', sans-serif;
+            font-size: 17px;
             text-align: center;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             outline: none;
-            transition: border-color 0.3s;
+            transition: border-color .3s;
         }
-        .modal-input:focus {
-            border-color: var(--mtn-yellow);
-        }
+        .modal-input:focus { border-color: var(--mtn-yellow); }
         .modal-btn {
             width: 100%;
-            padding: 16px;
+            padding: 15px;
             background: var(--mtn-yellow);
             color: black;
             border: none;
             border-radius: 12px;
+            font-family: 'Poppins', sans-serif;
             font-weight: 700;
-            font-size: 16px;
+            font-size: 15px;
             cursor: pointer;
-            transition: all 0.3s;
-            margin-bottom: 12px;
+            transition: all .3s;
+            margin-bottom: 10px;
         }
-        .modal-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
+        .modal-btn:hover { transform: scale(1.02); box-shadow: 0 8px 20px rgba(255,204,0,.3); }
+        .modal-btn.secondary { background: #f3f4f6; color: #374151; }
+        .modal-divider {
+            position: relative;
+            text-align: center;
+            margin: 14px 0;
         }
-        .modal-btn.secondary {
-            background: #f3f4f6;
-            color: #374151;
+        .modal-divider::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 0; right: 0;
+            height: 1px;
+            background: #e5e7eb;
+        }
+        .modal-divider span {
+            position: relative;
+            background: white;
+            padding: 0 12px;
+            color: #9ca3af;
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: .06em;
         }
         .modal-error {
             color: #dc2626;
-            font-size: 13px;
-            margin-top: 10px;
+            font-size: 12px;
+            margin-top: 8px;
             display: none;
         }
-        .modal-error.show {
-            display: block;
+        .modal-error.show { display: block; }
+
+        /* ─── Print ─── */
+        @media print {
+            body { background: white !important; overflow: visible; }
+            #formArea, .error-message, .btn-print, #saveBtn, #updateBtn, #merchantCheckModal { display: none !important; }
+            .page-wrapper { padding: 0; align-items: center; justify-content: center; min-height: 100vh; background: none; }
+            .main-grid { display: flex !important; justify-content: center; }
+            #posterArea { opacity: 1 !important; transform: none !important; }
+            .poster-canvas {
+                box-shadow: none !important;
+                border: 14px solid white !important;
+                print-color-adjust: exact;
+                -webkit-print-color-adjust: exact;
+            }
+            .poster-container { perspective: none !important; }
+        }
+
+        /* ─── Poster text elements ─── */
+        .poster-logo-bar {
+            position: absolute;
+            top: 40px;
+            z-index: 10;
+            background: white;
+            padding: 10px 24px;
+            border-radius: 50px;
+            box-shadow: 0 4px 16px rgba(0,0,0,.08);
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .poster-tagline {
+            position: absolute;
+            top: 108px;
+            z-index: 10;
+            color: var(--mtn-blue);
+            font-weight: 800;
+            font-size: 17px;
+            letter-spacing: .18em;
+            text-transform: uppercase;
+            opacity: .9;
+        }
+        .poster-powered {
+            position: absolute;
+            bottom: 18px;
+            z-index: 20;
+            color: white;
+            font-weight: 700;
+            letter-spacing: .14em;
+            font-size: 10px;
+            opacity: .6;
         }
     </style>
 </head>
-<body class="min-h-screen flex items-center justify-center p-6 bg-[radial-gradient(circle_at_bottom_left,_#FFCC0044,_transparent_600px)]">
+<body>
 
-    <!-- Merchant Code Check Modal -->
+    <!-- Modal -->
     <div id="merchantCheckModal">
         <div class="modal-content">
             <h2>Merchant Portal</h2>
-            <p style="margin-bottom: 8px; font-weight: 600;">Have you generated a QR code with us before?</p>
-            <p style="font-size: 13px; color: #888; margin-bottom: 20px;">Enter your merchant code below to retrieve your existing QR code poster, or select "I am a new merchant" to create one.</p>
+            <p style="font-weight:600;margin-bottom:6px;font-size:14px;">Have you generated a QR code with us before?</p>
+            <p>Enter your merchant code below to retrieve your existing QR code poster, or select "I am a new merchant" to create one.</p>
             <input type="text" id="checkMerchantCode" class="modal-input" placeholder="Enter your merchant code (e.g., 12XX)" maxlength="15">
             <button onclick="checkMerchant()" class="modal-btn">RETRIEVE MY QR CODE</button>
-            <div style="margin: 15px 0; position: relative; text-align: center;">
-                <div style="position: absolute; top: 50%; left: 0; right: 0; height: 1px; background: #e5e7eb;"></div>
-                <span style="position: relative; background: white; padding: 0 15px; color: #9ca3af; font-size: 12px; text-transform: uppercase;">Or</span>
-            </div>
+            <div class="modal-divider"><span>Or</span></div>
             <button onclick="skipCheck()" class="modal-btn secondary">I am a new merchant</button>
             <div id="modalError" class="modal-error"></div>
         </div>
     </div>
 
-    <div class="max-w-6xl w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center z-10" id="mainContent" style="display: none;">
-        
-        <div class="poster-container flex flex-col items-center justify-center opacity-0" id="posterArea">
-            <div class="poster-canvas flex flex-col items-center justify-center">
-                <div class="absolute top-12 z-10 bg-white py-3 px-8 rounded-full shadow-lg flex items-center gap-3">
-                    <img src="/src/assets/logo.png" alt="MTN MoMo QR Merchant" style="height: 32px; object-fit: contain;">
-                    <span class="text-xs font-bold text-gray-400 uppercase tracking-widest">Business</span>
-                </div>
+    <div class="page-wrapper">
+        <div class="main-grid" id="mainContent" style="display:none;">
 
-                <p class="absolute top-32 z-10 text-[#004F91] font-extrabold text-xl tracking-[0.2em] uppercase opacity-90">Scan to Pay</p>
-                
-                <div id="qrcode" class="z-10 transition-transform duration-500"></div>
-
-                <div class="absolute bottom-10 z-20 text-white font-bold tracking-widest text-xs opacity-60">
-                    POWERED BY MOMO TECHNOLOGY
-                </div>
-
-                <div class="wave-bottom"></div>
-            </div>
-        </div>
-
-        <div class="glass-panel p-10 lg:p-14 rounded-[50px] shadow-2xl opacity-0" id="formArea">
-            <header class="mb-12">
-                <h3 class="text-4xl font-black text-[#004F91] mb-3 leading-tight">Merchant<br>Generator</h3>
-                <div class="h-1.5 w-20 bg-[#FFCC00] rounded-full"></div>
-            </header>
-
-            <div class="space-y-10">
-                <div class="group">
-                    <label class="text-xs font-black text-gray-400 uppercase tracking-tighter mb-1 block">Merchant Name *</label>
-                    <input type="text" id="inputName" oninput="updatePoster()" placeholder="e.g. Vision Énergie" 
-                        class="w-full px-0 py-3 bg-transparent border-b-2 border-gray-200 focus:border-[#FFCC00] text-xl font-medium outline-none transition-all">
-                </div>
-
-                <div class="grid grid-cols-2 gap-12">
-                    <div class="group">
-                        <label class="text-xs font-black text-gray-400 uppercase tracking-tighter mb-1 block">Merchant Code (Momo) *</label>
-                        <input type="text" id="inputCode" oninput="updatePoster()" placeholder="677227..." 
-                            class="w-full px-0 py-3 bg-transparent border-b-2 border-gray-200 focus:border-[#FFCC00] text-xl font-medium outline-none transition-all">
-                    </div>
-                    <div class="group">
-                        <label class="text-xs font-black text-gray-400 uppercase tracking-tighter mb-1 block">City *</label>
-                        <input type="text" id="inputCity" oninput="updatePoster()" placeholder="e.g. BAFOUSSAM" 
-                            class="w-full px-0 py-3 bg-transparent border-b-2 border-gray-200 focus:border-[#FFCC00] text-xl font-medium outline-none transition-all">
+            <!-- Poster -->
+            <div class="poster-col" id="posterArea" style="opacity:0;">
+                <div class="poster-container">
+                    <div class="poster-canvas" style="display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                        <div class="poster-logo-bar">
+                            <img src="/src/assets/logo.png" alt="MTN MoMo QR Merchant" style="height:28px;object-fit:contain;">
+                            <span style="font-size:10px;font-weight:700;color:#9ca3af;text-transform:uppercase;letter-spacing:.1em;">Business</span>
+                        </div>
+                        <p class="poster-tagline">Scan to Pay</p>
+                        <div id="qrcode" style="z-index:10;"></div>
+                        <div class="poster-powered">POWERED BY MOMO TECHNOLOGY</div>
+                        <div class="wave-bottom"></div>
                     </div>
                 </div>
+            </div>
 
-                <div class="pt-8">
-                    <button onclick="saveData()" id="saveBtn" class="w-full bg-[#004F91] text-white font-bold text-lg py-6 rounded-3xl hover:bg-[#002e54] shadow-xl transform active:scale-95 transition-all duration-300 flex items-center justify-center gap-4">
-                        GENERATE AND SAVE
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>
-                    </button>
-                    <button onclick="updateData()" id="updateBtn" class="w-full bg-[#22c55e] text-white font-bold text-lg py-6 rounded-3xl hover:bg-[#16a34a] shadow-xl transform active:scale-95 transition-all duration-300 flex items-center justify-center gap-4" style="display: none;">
-                        UPDATE
-                        <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>
-                    </button>
-                    <button onclick="printPoster()" id="printBtn" class="print-btn">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
-                        PRINT ONLY
-                    </button>
-                    <button onclick="printPoster()" id="printOnlyBtn" class="print-btn" style="display: none;">
-                        <svg width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
-                        PRINT POSTER
-                    </button>
-                    <div id="errorMessage" class="error-message"></div>
+            <!-- Form -->
+            <div class="form-col" id="formArea" style="opacity:0;">
+                <div class="glass-panel">
+                    <header style="margin-bottom:36px;">
+                        <h3 style="font-size:clamp(28px,5vw,40px);font-weight:900;color:var(--mtn-blue);margin:0 0 10px;line-height:1.1;">Merchant<br>Generator</h3>
+                        <div style="height:6px;width:72px;background:var(--mtn-yellow);border-radius:10px;"></div>
+                    </header>
+
+                    <div class="field-group">
+                        <label class="field-label">Merchant Name *</label>
+                        <input type="text" id="inputName" oninput="updatePoster()" placeholder="e.g. Vision Énergie" class="field-input">
+                    </div>
+
+                    <div class="two-col-grid">
+                        <div class="field-group">
+                            <label class="field-label">Merchant Code (Momo) *</label>
+                            <input type="text" id="inputCode" oninput="updatePoster()" placeholder="677227..." class="field-input" inputmode="numeric">
+                        </div>
+                        <div class="field-group">
+                            <label class="field-label">City *</label>
+                            <input type="text" id="inputCity" oninput="updatePoster()" placeholder="e.g. BAFOUSSAM" class="field-input">
+                        </div>
+                    </div>
+
+                    <div style="padding-top:8px;">
+                        <button onclick="saveData()" id="saveBtn" class="btn-primary">
+                            GENERATE AND SAVE
+                            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>
+                        </button>
+                        <button onclick="updateData()" id="updateBtn" class="btn-update">
+                            UPDATE
+                            <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                        </button>
+                        <button onclick="printPoster()" id="printBtn" class="btn-print">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
+                            PRINT ONLY
+                        </button>
+                        <button onclick="printPoster()" id="printOnlyBtn" class="btn-print">
+                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2M6 14h12v8H6v-8z"/></svg>
+                            PRINT POSTER
+                        </button>
+                        <div id="errorMessage" class="error-message"></div>
+                    </div>
                 </div>
             </div>
+
         </div>
     </div>
 
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
-        
         const supabaseUrl = 'https://vnqysheyehtyciswsoua.supabase.co'
         const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZucXlzaGV5ZWh0eWNpc3dzb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNDI2MTUsImV4cCI6MjA5MTgxODYxNX0.rVcG0TKrnNPsoSPiGIvNdSPtt7zFBk0PO32xvku-_fk'
-        
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        
-        window.supabase = supabase
+        window.supabase = createClient(supabaseUrl, supabaseKey)
     </script>
 
     <script>
         let existingMerchantId = null;
-        let isExistingMerchant = false;
 
+        /* ── QR init ── */
+        const qrSize = window.innerWidth < 380 ? 180 : 200;
         const qrcode = new QRCode(document.getElementById("qrcode"), {
             text: "000201010211",
-            width: 240,
-            height: 240,
-            colorDark : "#004F91",
-            colorLight : "#ffffff",
-            correctLevel : QRCode.CorrectLevel.H
+            width: qrSize,
+            height: qrSize,
+            colorDark: "#004F91",
+            colorLight: "#ffffff",
+            correctLevel: QRCode.CorrectLevel.H
         });
 
         function generateMomoPayload(name, code, city) {
-            const cleanName = name.substring(0, 14).toLowerCase();
-            const cleanCity = city.substring(0, 14).toUpperCase();
-            
-            let payload = "00020101021135370014A0000006561010010512002020";
-            payload += code;
-            payload += "5204411153039505802CM59";
-            payload += cleanName.length.toString().padStart(2, '0') + cleanName;
-            payload += "60";
-            payload += cleanCity.length.toString().padStart(2, '0') + cleanCity;
-            payload += "6250110300050390014A00000065610100117merchant_purchase63040EBD";
-            
-            return payload;
+            const cleanName = name.substring(0,14).toLowerCase();
+            const cleanCity = city.substring(0,14).toUpperCase();
+            let p = "00020101021135370014A0000006561010010512002020";
+            p += code;
+            p += "5204411153039505802CM59";
+            p += cleanName.length.toString().padStart(2,'0') + cleanName;
+            p += "60";
+            p += cleanCity.length.toString().padStart(2,'0') + cleanCity;
+            p += "6250110300050390014A00000065610100117merchant_purchase63040EBD";
+            return p;
         }
 
         function updatePoster() {
             const name = document.getElementById('inputName').value || "merchant";
             const code = document.getElementById('inputCode').value || "000000";
             const city = document.getElementById('inputCity').value || "DOUALA";
-
-            const momoData = generateMomoPayload(name, code, city);
-            
             qrcode.clear();
-            qrcode.makeCode(momoData);
-            
-            gsap.fromTo("#qrcode", { scale: 0.95 }, { scale: 1, duration: 0.3, ease: "back.out" });
+            qrcode.makeCode(generateMomoPayload(name, code, city));
+            gsap.fromTo("#qrcode", { scale: .95 }, { scale: 1, duration: .3, ease: "back.out" });
         }
 
         async function checkMerchant() {
             const code = document.getElementById('checkMerchantCode').value.trim();
-            const errorDiv = document.getElementById('modalError');
-            
-            if (!code) {
-                errorDiv.textContent = "Please enter your merchant code";
-                errorDiv.classList.add('show');
-                return;
-            }
-
+            const err = document.getElementById('modalError');
+            if (!code) { err.textContent = "Please enter your merchant code"; err.classList.add('show'); return; }
             try {
-                const { data, error } = await window.supabase
-                    .from('merchant_qr_codes')
-                    .select('*')
-                    .eq('merchant_code', code)
-                    .single();
-
-                if (error && error.code !== 'PGRST116') {
-                    throw error;
-                }
-
+                const { data, error } = await window.supabase.from('merchant_qr_codes').select('*').eq('merchant_code', code).single();
+                if (error && error.code !== 'PGRST116') throw error;
                 if (data) {
-                    // Merchant exists - load data
                     existingMerchantId = data.id;
-                    isExistingMerchant = true;
-                    
-                    // Fill form with existing data
                     document.getElementById('inputName').value = data.merchant_name;
                     document.getElementById('inputCode').value = data.merchant_code;
                     document.getElementById('inputCity').value = data.city;
-                    
-                    // Update poster
                     updatePoster();
-                    
-                    // Switch buttons for existing merchant
                     document.getElementById('saveBtn').style.display = 'none';
-                    document.getElementById('updateBtn').style.display = 'flex';
-                    document.getElementById('printBtn').style.display = 'none';
-                    document.getElementById('printOnlyBtn').style.display = 'flex';
+                    document.getElementById('updateBtn').classList.add('show');
                     document.getElementById('printOnlyBtn').classList.add('show');
-                    
-                    // Close modal and show main content
-                    closeModal();
-                    
-                    // Ensure main content is visible
-                    document.getElementById('mainContent').style.display = 'grid';
-                    
-                    // Make elements visible immediately (fallback)
-                    document.getElementById('posterArea').style.opacity = '1';
-                    document.getElementById('formArea').style.opacity = '1';
-                    
-                    // Animate poster float
-                    gsap.to(".poster-canvas", { y: -15, rotateZ: 1, repeat: -1, yoyo: true, duration: 4, ease: "sine.inOut" });
-                    
+                    closeModalAndShow();
                 } else {
-                    // Merchant not found - show error
-                    errorDiv.textContent = "Merchant code not found. Please check your code or click 'I am a new merchant' below.";
-                    errorDiv.classList.add('show');
+                    err.textContent = "Merchant code not found. Check your code or click 'I am a new merchant' below.";
+                    err.classList.add('show');
                 }
-            } catch (error) {
-                console.error('Error checking merchant:', error);
-                errorDiv.textContent = "Error checking merchant. Please try again.";
-                errorDiv.classList.add('show');
+            } catch(e) {
+                err.textContent = "Error checking merchant. Please try again.";
+                err.classList.add('show');
             }
         }
 
-        function skipCheck() {
-            closeModal();
-            showNewMerchantForm();
-        }
+        function skipCheck() { closeModalAndShow(); }
 
-        function closeModal() {
+        function closeModalAndShow() {
             document.getElementById('merchantCheckModal').style.display = 'none';
-        }
-
-        function showNewMerchantForm() {
-            document.getElementById('mainContent').style.display = 'grid';
-            
-            // Show new merchant buttons
-            document.getElementById('saveBtn').style.display = 'flex';
-            document.getElementById('updateBtn').style.display = 'none';
-            document.getElementById('printBtn').style.display = 'none';
-            document.getElementById('printOnlyBtn').style.display = 'none';
-            
-            // Ensure elements are visible (fallback)
+            const mc = document.getElementById('mainContent');
+            mc.style.display = 'grid';
             document.getElementById('posterArea').style.opacity = '1';
             document.getElementById('formArea').style.opacity = '1';
-            
-            // Animate poster float
-            gsap.to(".poster-canvas", { y: -15, rotateZ: 1, repeat: -1, yoyo: true, duration: 4, ease: "sine.inOut" });
+            gsap.to(".poster-canvas", { y: -12, rotateZ: 1, repeat: -1, yoyo: true, duration: 4, ease: "sine.inOut" });
         }
 
         function validateInputs(name, code, city) {
             const errors = [];
-            
-            if (!name || name.trim() === '') {
-                errors.push('Merchant name is required');
-            }
-            if (!code || code.trim() === '') {
-                errors.push('Merchant code is required');
-            }
-            if (!city || city.trim() === '') {
-                errors.push('City is required');
-            }
-            
-            if (code && !/^\d+$/.test(code)) {
-                errors.push('Merchant code must contain only numbers');
-            }
-            
+            if (!name) errors.push('Merchant name is required');
+            if (!code) errors.push('Merchant code is required');
+            if (!city) errors.push('City is required');
+            if (code && !/^\d+$/.test(code)) errors.push('Merchant code must contain only numbers');
             return errors;
         }
 
-        function showError(message) {
-            const errorDiv = document.getElementById('errorMessage');
-            errorDiv.textContent = message;
-            errorDiv.classList.add('show');
-            
-            setTimeout(() => {
-                errorDiv.classList.remove('show');
-            }, 5000);
+        function showError(msg) {
+            const d = document.getElementById('errorMessage');
+            d.textContent = msg; d.classList.add('show');
+            setTimeout(() => d.classList.remove('show'), 5000);
         }
 
         async function saveData() {
             const btn = document.getElementById('saveBtn');
-            const printBtn = document.getElementById('printBtn');
             const name = document.getElementById('inputName').value.trim();
             const code = document.getElementById('inputCode').value.trim();
             const city = document.getElementById('inputCity').value.trim();
-            
-            const validationErrors = validateInputs(name, code, city);
-            if (validationErrors.length > 0) {
-                showError(validationErrors.join('. '));
-                return;
-            }
-            
-            const qrPayload = generateMomoPayload(name, code, city);
-            
-            btn.innerHTML = `SAVING... <div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>`;
+            const ve = validateInputs(name, code, city);
+            if (ve.length) { showError(ve.join('. ')); return; }
+            btn.innerHTML = `SAVING... <div style="width:20px;height:20px;border:2px solid white;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;"></div>`;
             btn.disabled = true;
-            
             try {
-                const { data, error } = await window.supabase
-                    .from('merchant_qr_codes')
-                    .insert([
-                        {
-                            merchant_name: name,
-                            merchant_code: code,
-                            city: city,
-                            qr_payload: qrPayload
-                        }
-                    ])
-                    .select();
-                
-                if (error) {
-                    throw error;
-                }
-                
+                const { error } = await window.supabase.from('merchant_qr_codes').insert([{ merchant_name: name, merchant_code: code, city, qr_payload: generateMomoPayload(name, code, city) }]).select();
+                if (error) throw error;
                 btn.innerHTML = `MERCHANT SAVED! ✓`;
-                gsap.to(".poster-canvas", { borderColor: "#22c55e", duration: 0.5, yoyo: true, repeat: 1 });
-                
-                // Show print button
-                printBtn.classList.add('show');
-                
+                gsap.to(".poster-canvas", { borderColor: "#22c55e", duration: .5, yoyo: true, repeat: 1 });
+                document.getElementById('printBtn').classList.add('show');
                 setTimeout(() => {
-                    btn.innerHTML = `GENERATE AND SAVE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>`;
+                    btn.innerHTML = `GENERATE AND SAVE <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>`;
                     btn.disabled = false;
                 }, 3000);
-                
-            } catch (error) {
-                console.error('Error saving merchant:', error);
-                showError('Failed to save merchant. Please try again.');
-                
-                btn.innerHTML = `GENERATE AND SAVE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"></path></svg>`;
+            } catch(e) {
+                showError('Failed to save. Please try again.');
+                btn.innerHTML = `GENERATE AND SAVE <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M13 7l5 5m0 0l-5 5m5-5H6"/></svg>`;
                 btn.disabled = false;
             }
         }
@@ -528,80 +609,45 @@
             const name = document.getElementById('inputName').value.trim();
             const code = document.getElementById('inputCode').value.trim();
             const city = document.getElementById('inputCity').value.trim();
-            
-            const validationErrors = validateInputs(name, code, city);
-            if (validationErrors.length > 0) {
-                showError(validationErrors.join('. '));
-                return;
-            }
-            
-            const qrPayload = generateMomoPayload(name, code, city);
-            
-            btn.innerHTML = `UPDATING... <div class="animate-spin h-5 w-5 border-2 border-white border-t-transparent rounded-full"></div>`;
+            const ve = validateInputs(name, code, city);
+            if (ve.length) { showError(ve.join('. ')); return; }
+            btn.innerHTML = `UPDATING... <div style="width:20px;height:20px;border:2px solid white;border-top-color:transparent;border-radius:50%;animation:spin .7s linear infinite;"></div>`;
             btn.disabled = true;
-            
             try {
-                const { data, error } = await window.supabase
-                    .from('merchant_qr_codes')
-                    .update({
-                        merchant_name: name,
-                        city: city,
-                        qr_payload: qrPayload,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', existingMerchantId)
-                    .select();
-                
-                if (error) {
-                    throw error;
-                }
-                
+                const { error } = await window.supabase.from('merchant_qr_codes').update({ merchant_name: name, city, qr_payload: generateMomoPayload(name, code, city), updated_at: new Date().toISOString() }).eq('id', existingMerchantId).select();
+                if (error) throw error;
                 btn.innerHTML = `UPDATED! ✓`;
-                gsap.to(".poster-canvas", { borderColor: "#22c55e", duration: 0.5, yoyo: true, repeat: 1 });
-                
+                gsap.to(".poster-canvas", { borderColor: "#22c55e", duration: .5, yoyo: true, repeat: 1 });
                 setTimeout(() => {
-                    btn.innerHTML = `UPDATE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
+                    btn.innerHTML = `UPDATE <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>`;
                     btn.disabled = false;
                 }, 3000);
-                
-            } catch (error) {
-                console.error('Error updating merchant:', error);
-                showError('Failed to update merchant. Please try again.');
-                
-                btn.innerHTML = `UPDATE <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"></path></svg>`;
+            } catch(e) {
+                showError('Failed to update. Please try again.');
+                btn.innerHTML = `UPDATE <svg width="22" height="22" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>`;
                 btn.disabled = false;
             }
         }
 
         function printPoster() {
-            const formArea = document.getElementById('formArea');
-            
-            // Temporarily hide form
-            formArea.style.display = 'none';
-            
-            // Print
+            const f = document.getElementById('formArea');
+            f.style.display = 'none';
             window.print();
-            
-            // Restore form after print
-            setTimeout(() => {
-                formArea.style.display = 'block';
-            }, 100);
+            setTimeout(() => { f.style.display = 'block'; }, 100);
         }
-        
-        // Initialize page
+
+        /* spinner keyframes */
+        const style = document.createElement('style');
+        style.textContent = '@keyframes spin { to { transform: rotate(360deg); } }';
+        document.head.appendChild(style);
+
         window.onload = () => {
-            // Show modal immediately
             document.getElementById('merchantCheckModal').style.display = 'flex';
             document.getElementById('mainContent').style.display = 'none';
         };
-        
-        // Allow Enter key in modal
-        document.getElementById('checkMerchantCode').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') {
-                checkMerchant();
-            }
-        });
-        
+
+        document.getElementById('checkMerchantCode').addEventListener('keypress', e => { if (e.key === 'Enter') checkMerchant(); });
+
         window.updatePoster = updatePoster;
         window.saveData = saveData;
         window.updateData = updateData;

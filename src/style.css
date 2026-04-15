@@ -49,6 +49,7 @@ nav {
     cursor: pointer; 
     transition: 0.3s; 
     color: var(--mtn-blue);
+    text-decoration: none;
 }
 .get-started:hover { 
     transform: scale(1.05); 
@@ -78,7 +79,8 @@ nav {
     position: absolute;
     background: var(--mtn-yellow);
     border-radius: 50%;
-    opacity: 0.25;
+    opacity: 0.5;
+    box-shadow: 0 0 10px var(--mtn-yellow-glow), 0 0 20px var(--mtn-yellow);
     animation: float-particle 20s linear infinite;
 }
 

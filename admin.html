@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Admin - MTN QR Merchant System</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -11,1084 +11,711 @@
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', sans-serif; }
-        
+
         :root {
             --mtn-yellow: #FFCC00;
             --mtn-blue: #004F91;
             --mtn-dark: #1a1a2e;
             --mtn-darker: #16162a;
-            --glass: rgba(255, 255, 255, 0.05);
-            --glass-border: rgba(255, 255, 255, 0.1);
+            --glass: rgba(255,255,255,.05);
+            --glass-border: rgba(255,255,255,.10);
         }
-        
+
         body {
             background: linear-gradient(135deg, var(--mtn-dark) 0%, var(--mtn-darker) 100%);
             color: white;
             min-height: 100vh;
         }
-        
-        /* Login Modal */
+
+        /* ── Login ── */
         #loginModal {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.9);
+            inset: 0;
+            background: rgba(0,0,0,.9);
             display: flex;
             align-items: center;
             justify-content: center;
             z-index: 9999;
+            padding: 16px;
         }
-        
         .login-box {
             background: linear-gradient(145deg, #1e2a4a 0%, #162035 100%);
-            padding: 50px;
+            padding: 40px 36px;
             border-radius: 20px;
-            width: 90%;
-            max-width: 450px;
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+            width: 100%;
+            max-width: 440px;
+            box-shadow: 0 25px 50px -12px rgba(0,0,0,.5);
             border: 1px solid var(--glass-border);
         }
-        
-        .login-box h1 {
-            color: var(--mtn-yellow);
-            font-size: 28px;
-            font-weight: 800;
-            margin-bottom: 10px;
-            text-align: center;
+        @media (max-width: 480px) {
+            .login-box { padding: 28px 20px; border-radius: 16px; }
         }
-        
-        .login-box p {
-            color: rgba(255, 255, 255, 0.6);
-            text-align: center;
-            margin-bottom: 30px;
-            font-size: 14px;
-        }
-        
+        .login-box h1 { color: var(--mtn-yellow); font-size: 26px; font-weight: 800; margin-bottom: 8px; text-align: center; }
+        .login-box p { color: rgba(255,255,255,.6); text-align: center; margin-bottom: 28px; font-size: 13px; }
         .login-input {
-            width: 100%;
-            padding: 16px 20px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            color: white;
-            font-size: 16px;
-            margin-bottom: 15px;
-            outline: none;
-            transition: all 0.3s;
+            width: 100%; padding: 15px 18px;
+            background: rgba(255,255,255,.05);
+            border: 2px solid rgba(255,255,255,.1);
+            border-radius: 12px; color: white; font-size: 15px;
+            margin-bottom: 14px; outline: none; transition: all .3s;
+            font-family: 'Poppins', sans-serif;
         }
-        
-        .login-input:focus {
-            border-color: var(--mtn-yellow);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        .login-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-        
+        .login-input:focus { border-color: var(--mtn-yellow); background: rgba(255,255,255,.08); }
+        .login-input::placeholder { color: rgba(255,255,255,.4); }
         .login-btn {
-            width: 100%;
-            padding: 16px;
-            background: var(--mtn-yellow);
-            color: black;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 16px;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-top: 10px;
+            width: 100%; padding: 15px; background: var(--mtn-yellow);
+            color: black; border: none; border-radius: 12px;
+            font-weight: 700; font-size: 15px; cursor: pointer;
+            transition: all .3s; margin-top: 8px; font-family: 'Poppins', sans-serif;
         }
-        
-        .login-btn:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
-        }
-        
-        .login-error {
-            color: #ef4444;
-            font-size: 13px;
-            margin-top: 10px;
-            text-align: center;
-            display: none;
-        }
-        
-        .login-error.show {
-            display: block;
-        }
-        
-        /* Dashboard */
-        #dashboard {
-            display: none;
-            padding: 30px;
-            max-width: 1400px;
-            margin: 0 auto;
-        }
-        
+        .login-btn:hover { transform: scale(1.02); box-shadow: 0 10px 20px rgba(255,204,0,.3); }
+        .login-error { color: #ef4444; font-size: 13px; margin-top: 10px; text-align: center; display: none; }
+        .login-error.show { display: block; }
+
+        /* ── Dashboard ── */
+        #dashboard { display: none; padding: 28px 24px; max-width: 1400px; margin: 0 auto; }
+        @media (max-width: 640px) { #dashboard { padding: 18px 14px; } }
+
+        /* ── Header ── */
         .dashboard-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 30px;
+            margin-bottom: 28px;
             padding-bottom: 20px;
             border-bottom: 1px solid var(--glass-border);
+            gap: 16px;
+            flex-wrap: wrap;
         }
-        
-        .dashboard-title {
-            font-size: 32px;
-            font-weight: 800;
-            color: white;
-        }
-        
-        .dashboard-title span {
-            color: var(--mtn-yellow);
-        }
-        
-        .header-actions {
-            display: flex;
-            gap: 12px;
-        }
-        
+        .dashboard-title { font-size: clamp(22px, 5vw, 32px); font-weight: 800; }
+        .dashboard-title span { color: var(--mtn-yellow); }
+
+        .header-actions { display: flex; gap: 10px; flex-wrap: wrap; }
         .btn {
-            padding: 12px 24px;
-            border: none;
-            border-radius: 10px;
-            font-weight: 600;
-            font-size: 14px;
-            cursor: pointer;
-            transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            padding: 10px 18px; border: none; border-radius: 10px;
+            font-weight: 600; font-size: 13px; cursor: pointer;
+            transition: all .3s; display: flex; align-items: center;
+            gap: 7px; font-family: 'Poppins', sans-serif; white-space: nowrap;
         }
-        
-        .btn-primary {
-            background: var(--mtn-yellow);
-            color: black;
+        @media (max-width: 520px) {
+            .header-actions { width: 100%; }
+            .btn { flex: 1; min-width: 0; justify-content: center; padding: 10px 12px; font-size: 12px; }
+            .btn svg { display: none; }
         }
-        
-        .btn-primary:hover {
-            transform: scale(1.02);
-            box-shadow: 0 10px 20px rgba(255, 204, 0, 0.3);
-        }
-        
-        .btn-secondary {
-            background: rgba(255, 255, 255, 0.1);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        .btn-secondary:hover {
-            background: rgba(255, 255, 255, 0.15);
-        }
-        
-        .btn-danger {
-            background: #ef4444;
-            color: white;
-        }
-        
-        .btn-danger:hover {
-            background: #dc2626;
-        }
-        
-        .btn-success {
-            background: #22c55e;
-            color: white;
-        }
-        
-        .btn-success:hover {
-            background: #16a34a;
-        }
-        
-        /* Stats Bar */
+        .btn-primary { background: var(--mtn-yellow); color: black; }
+        .btn-primary:hover { transform: scale(1.02); box-shadow: 0 8px 20px rgba(255,204,0,.3); }
+        .btn-secondary { background: rgba(255,255,255,.10); color: white; border: 1px solid rgba(255,255,255,.2); }
+        .btn-secondary:hover { background: rgba(255,255,255,.15); }
+        .btn-danger { background: #ef4444; color: white; }
+        .btn-danger:hover { background: #dc2626; }
+        .btn-success { background: #22c55e; color: white; }
+        .btn-success:hover { background: #16a34a; }
+
+        /* ── Stats ── */
         .stats-bar {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin-bottom: 30px;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
         }
-        
-        .stat-card {
-            background: var(--glass);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid var(--glass-border);
-        }
-        
-        .stat-label {
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.6);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            margin-bottom: 8px;
-        }
-        
-        .stat-value {
-            font-size: 36px;
-            font-weight: 800;
-            color: var(--mtn-yellow);
-        }
-        
-        /* Search Bar */
-        .search-bar {
-            margin-bottom: 25px;
-        }
-        
+        .stat-card { background: var(--glass); padding: 20px; border-radius: 14px; border: 1px solid var(--glass-border); }
+        .stat-label { font-size: 11px; color: rgba(255,255,255,.6); text-transform: uppercase; letter-spacing: .08em; margin-bottom: 6px; }
+        .stat-value { font-size: 32px; font-weight: 800; color: var(--mtn-yellow); }
+
+        /* ── Search ── */
+        .search-bar { margin-bottom: 20px; }
         .search-input {
-            width: 100%;
-            max-width: 400px;
-            padding: 14px 20px;
-            background: var(--glass);
-            border: 1px solid var(--glass-border);
-            border-radius: 12px;
-            color: white;
-            font-size: 15px;
-            outline: none;
-            transition: all 0.3s;
+            width: 100%; max-width: 400px; padding: 13px 18px;
+            background: var(--glass); border: 1px solid var(--glass-border);
+            border-radius: 12px; color: white; font-size: 14px;
+            outline: none; transition: all .3s; font-family: 'Poppins', sans-serif;
         }
-        
-        .search-input:focus {
-            border-color: var(--mtn-yellow);
-            background: rgba(255, 255, 255, 0.08);
-        }
-        
-        .search-input::placeholder {
-            color: rgba(255, 255, 255, 0.4);
-        }
-        
-        /* Table */
+        @media (max-width: 640px) { .search-input { max-width: 100%; } }
+        .search-input:focus { border-color: var(--mtn-yellow); background: rgba(255,255,255,.08); }
+        .search-input::placeholder { color: rgba(255,255,255,.4); }
+
+        /* ── Table container (desktop) ── */
         .table-container {
             background: var(--glass);
-            border-radius: 15px;
+            border-radius: 14px;
             border: 1px solid var(--glass-border);
             overflow: hidden;
             overflow-x: auto;
         }
-        
-        table {
-            width: 100%;
-            border-collapse: collapse;
-        }
-        
-        thead {
-            background: rgba(0, 79, 145, 0.3);
-        }
-        
-        th {
-            padding: 18px 20px;
-            text-align: left;
-            font-weight: 600;
-            font-size: 13px;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-            color: rgba(255, 255, 255, 0.8);
-        }
-        
-        td {
-            padding: 16px 20px;
-            border-bottom: 1px solid var(--glass-border);
-            font-size: 14px;
-        }
-        
-        tr:hover {
-            background: rgba(255, 255, 255, 0.03);
-        }
-        
-        .merchant-name {
-            font-weight: 600;
-            color: white;
-        }
-        
+        table { width: 100%; border-collapse: collapse; }
+        thead { background: rgba(0,79,145,.3); }
+        th { padding: 16px 18px; text-align: left; font-weight: 600; font-size: 12px; text-transform: uppercase; letter-spacing: .07em; color: rgba(255,255,255,.8); }
+        td { padding: 14px 18px; border-bottom: 1px solid var(--glass-border); font-size: 13px; }
+        tr:hover { background: rgba(255,255,255,.03); }
+        .merchant-name { font-weight: 600; color: white; }
         .merchant-code {
             font-family: 'Courier New', monospace;
-            background: rgba(255, 204, 0, 0.1);
-            padding: 4px 10px;
-            border-radius: 6px;
-            color: var(--mtn-yellow);
-            font-size: 12px;
+            background: rgba(255,204,0,.12);
+            padding: 3px 9px; border-radius: 6px;
+            color: var(--mtn-yellow); font-size: 12px; display: inline-block;
         }
-        
-        .action-btns {
-            display: flex;
-            gap: 8px;
-        }
-        
+        .action-btns { display: flex; gap: 7px; }
         .action-btn {
-            padding: 8px 14px;
-            border: none;
-            border-radius: 8px;
-            font-weight: 600;
-            font-size: 12px;
-            cursor: pointer;
-            transition: all 0.3s;
+            padding: 7px 13px; border: none; border-radius: 8px;
+            font-weight: 600; font-size: 12px; cursor: pointer;
+            transition: all .3s; font-family: 'Poppins', sans-serif;
         }
-        
-        .action-btn:hover {
-            transform: scale(1.05);
-        }
-        
-        /* Edit Modal */
-        .modal-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(0, 0, 0, 0.8);
-            display: none;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-        }
-        
-        .modal-overlay.show {
-            display: flex;
-        }
-        
-        .modal {
-            background: linear-gradient(145deg, #1e2a4a 0%, #162035 100%);
-            padding: 40px;
-            border-radius: 20px;
-            width: 90%;
-            max-width: 500px;
+        .action-btn:hover { transform: scale(1.05); opacity: .9; }
+
+        /* ── MOBILE CARD VIEW ── */
+        #merchantCards { display: none; }
+
+        .merchant-card {
+            background: rgba(255,255,255,.06);
             border: 1px solid var(--glass-border);
+            border-radius: 16px;
+            padding: 18px 16px;
+            margin-bottom: 12px;
+            transition: background .2s;
         }
-        
-        .modal h2 {
-            color: var(--mtn-yellow);
-            margin-bottom: 25px;
-            font-size: 24px;
-        }
-        
-        .form-group {
-            margin-bottom: 20px;
-        }
-        
-        .form-group label {
-            display: block;
-            margin-bottom: 8px;
-            font-size: 13px;
-            color: rgba(255, 255, 255, 0.7);
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
-        
-        .form-group input {
-            width: 100%;
-            padding: 14px 16px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 10px;
-            color: white;
-            font-size: 15px;
-            outline: none;
-        }
-        
-        .form-group input:focus {
-            border-color: var(--mtn-yellow);
-        }
-        
-        .modal-actions {
+        .merchant-card:active { background: rgba(255,255,255,.09); }
+
+        .card-top {
             display: flex;
-            gap: 12px;
-            margin-top: 25px;
+            justify-content: space-between;
+            align-items: flex-start;
+            margin-bottom: 12px;
+            gap: 10px;
         }
-        
-        .modal-actions .btn {
-            flex: 1;
+        .card-name { font-weight: 700; font-size: 15px; color: white; line-height: 1.3; }
+        .card-id { font-size: 10px; color: rgba(255,255,255,.35); margin-top: 2px; font-family: monospace; }
+
+        .card-meta {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px 16px;
+            margin-bottom: 14px;
         }
-        
-        /* QR Preview Modal */
-        .qr-modal .modal {
-            max-width: 450px;
+        .card-meta-item {}
+        .card-meta-label { font-size: 10px; color: rgba(255,255,255,.45); text-transform: uppercase; letter-spacing: .07em; margin-bottom: 2px; }
+        .card-meta-value { font-size: 13px; color: rgba(255,255,255,.85); }
+
+        .card-actions { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; }
+        .card-action-btn {
+            padding: 10px 8px; border: none; border-radius: 10px;
+            font-weight: 700; font-size: 12px; cursor: pointer;
+            transition: all .25s; font-family: 'Poppins', sans-serif;
             text-align: center;
         }
-        
-        .qr-preview-container {
-            background: white;
-            padding: 30px;
-            border-radius: 15px;
-            margin: 20px 0;
+        .card-action-btn:active { transform: scale(.96); }
+
+        /* Show/hide based on screen size */
+        @media (max-width: 768px) {
+            .table-container { display: none; }
+            #merchantCards { display: block; }
         }
-        
-        .qr-preview-title {
-            color: var(--mtn-blue);
-            font-size: 18px;
-            font-weight: 700;
-            margin-bottom: 15px;
-        }
-        
-        .qr-preview-info {
-            color: #666;
-            font-size: 14px;
-            margin-top: 15px;
-        }
-        
-        /* Delete Confirmation */
-        .delete-confirm {
-            text-align: center;
-        }
-        
-        .delete-confirm p {
-            margin: 15px 0;
-            color: rgba(255, 255, 255, 0.8);
-            line-height: 1.6;
-        }
-        
-        .delete-confirm .merchant-highlight {
-            color: var(--mtn-yellow);
-            font-weight: 700;
-        }
-        
-        /* Loading State */
-        .loading {
-            text-align: center;
-            padding: 60px;
-            color: rgba(255, 255, 255, 0.5);
-        }
-        
+
+        /* ── Loading / Empty ── */
+        .loading { text-align: center; padding: 56px; color: rgba(255,255,255,.5); }
         .spinner {
-            width: 40px;
-            height: 40px;
-            border: 3px solid rgba(255, 204, 0, 0.3);
+            width: 38px; height: 38px;
+            border: 3px solid rgba(255,204,0,.3);
             border-top-color: var(--mtn-yellow);
             border-radius: 50%;
             animation: spin 1s linear infinite;
-            margin: 0 auto 20px;
+            margin: 0 auto 18px;
         }
-        
-        @keyframes spin {
-            to { transform: rotate(360deg); }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .empty-state { text-align: center; padding: 56px; color: rgba(255,255,255,.5); }
+        .empty-state svg { width: 56px; height: 56px; margin-bottom: 16px; opacity: .3; }
+
+        /* ── Modals ── */
+        .modal-overlay {
+            position: fixed; inset: 0;
+            background: rgba(0,0,0,.8);
+            display: none; align-items: center;
+            justify-content: center; z-index: 1000;
+            padding: 16px;
         }
-        
-        /* Empty State */
-        .empty-state {
-            text-align: center;
-            padding: 60px;
-            color: rgba(255, 255, 255, 0.5);
+        .modal-overlay.show { display: flex; }
+        .modal {
+            background: linear-gradient(145deg, #1e2a4a 0%, #162035 100%);
+            padding: 36px 32px;
+            border-radius: 20px; width: 100%; max-width: 480px;
+            border: 1px solid var(--glass-border);
+            max-height: 90vh; overflow-y: auto;
         }
-        
-        .empty-state svg {
-            width: 64px;
-            height: 64px;
-            margin-bottom: 20px;
-            opacity: 0.3;
+        @media (max-width: 480px) {
+            .modal { padding: 24px 18px; border-radius: 16px; }
         }
-        
-        /* Responsive */
-        @media (max-width: 768px) {
-            .dashboard-header {
-                flex-direction: column;
-                gap: 20px;
-                align-items: flex-start;
-            }
-            
-            .header-actions {
-                width: 100%;
-                flex-wrap: wrap;
-            }
-            
-            .btn {
-                flex: 1;
-                min-width: 120px;
-            }
-            
-            td {
-                padding: 12px 15px;
-            }
-            
-            .action-btns {
-                flex-direction: column;
-                gap: 6px;
-            }
+        .modal h2 { color: var(--mtn-yellow); margin-bottom: 22px; font-size: 22px; }
+        .form-group { margin-bottom: 18px; }
+        .form-group label { display: block; margin-bottom: 6px; font-size: 12px; color: rgba(255,255,255,.7); text-transform: uppercase; letter-spacing: .07em; }
+        .form-group input {
+            width: 100%; padding: 13px 15px;
+            background: rgba(255,255,255,.05);
+            border: 1px solid rgba(255,255,255,.12);
+            border-radius: 10px; color: white; font-size: 14px; outline: none;
+            font-family: 'Poppins', sans-serif; transition: border-color .3s;
         }
-        
-        /* Toast Notification */
+        .form-group input:focus { border-color: var(--mtn-yellow); }
+        .modal-actions { display: flex; gap: 10px; margin-top: 22px; }
+        .modal-actions .btn { flex: 1; justify-content: center; }
+
+        /* QR modal */
+        .qr-modal .modal { max-width: 420px; text-align: center; }
+        .qr-preview-container { background: white; padding: 24px; border-radius: 14px; margin: 18px 0; }
+        .qr-preview-title { color: var(--mtn-blue); font-size: 17px; font-weight: 700; margin-bottom: 12px; }
+        .qr-preview-info { color: #666; font-size: 13px; margin-top: 12px; }
+
+        /* Delete modal */
+        .delete-confirm { text-align: center; }
+        .delete-confirm p { margin: 12px 0; color: rgba(255,255,255,.8); line-height: 1.6; font-size: 14px; }
+        .delete-confirm .merchant-highlight { color: var(--mtn-yellow); font-weight: 700; }
+
+        /* ── Toast ── */
         .toast {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            padding: 16px 24px;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 14px;
-            z-index: 9999;
-            transform: translateX(400px);
-            transition: transform 0.3s ease;
+            position: fixed; bottom: 24px; right: 20px;
+            padding: 14px 22px; border-radius: 12px;
+            font-weight: 600; font-size: 13px; z-index: 9999;
+            transform: translateX(360px); transition: transform .3s ease;
+            font-family: 'Poppins', sans-serif; max-width: calc(100vw - 40px);
         }
-        
-        .toast.show {
-            transform: translateX(0);
-        }
-        
-        .toast.success {
-            background: #22c55e;
-            color: white;
-        }
-        
-        .toast.error {
-            background: #ef4444;
-            color: white;
-        }
+        .toast.show { transform: translateX(0); }
+        .toast.success { background: #22c55e; color: white; }
+        .toast.error { background: #ef4444; color: white; }
     </style>
 </head>
 <body>
-    <!-- Login Modal -->
-    <div id="loginModal">
-        <div class="login-box">
-            <h1>Admin Portal</h1>
-            <p>MTN QR Merchant Management System</p>
-            <input type="text" id="username" class="login-input" placeholder="Username">
-            <input type="password" id="password" class="login-input" placeholder="Password">
-            <button onclick="login()" class="login-btn">LOGIN</button>
-            <div id="loginError" class="login-error">Invalid credentials. Please try again.</div>
+
+<!-- Login -->
+<div id="loginModal">
+    <div class="login-box">
+        <h1>Admin Portal</h1>
+        <p>MTN QR Merchant Management System</p>
+        <input type="text" id="username" class="login-input" placeholder="Username">
+        <input type="password" id="password" class="login-input" placeholder="Password">
+        <button onclick="login()" class="login-btn">LOGIN</button>
+        <div id="loginError" class="login-error">Invalid credentials. Please try again.</div>
+    </div>
+</div>
+
+<!-- Dashboard -->
+<div id="dashboard">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">Admin <span>Dashboard</span></h1>
+        <div class="header-actions">
+            <button onclick="exportToExcel()" class="btn btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+                Excel
+            </button>
+            <button onclick="exportToPDF()" class="btn btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
+                PDF
+            </button>
+            <button onclick="refreshData()" class="btn btn-secondary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                Refresh
+            </button>
+            <button onclick="logout()" class="btn btn-danger">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
+                Logout
+            </button>
         </div>
     </div>
 
-    <!-- Dashboard -->
-    <div id="dashboard">
-        <div class="dashboard-header">
-            <h1 class="dashboard-title">Admin <span>Dashboard</span></h1>
-            <div class="header-actions">
-                <button onclick="exportToExcel()" class="btn btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
-                    Export Excel
-                </button>
-                <button onclick="exportToPDF()" class="btn btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M7 21h10a2 2 0 002-2V9.414a1 1 0 00-.293-.707l-5.414-5.414A1 1 0 0012.586 3H7a2 2 0 00-2 2v14a2 2 0 002 2z"/></svg>
-                    Export PDF
-                </button>
-                <button onclick="refreshData()" class="btn btn-secondary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
-                    Refresh
-                </button>
-                <button onclick="logout()" class="btn btn-danger">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"/></svg>
-                    Logout
-                </button>
-            </div>
+    <div class="stats-bar">
+        <div class="stat-card">
+            <div class="stat-label">Total Merchants</div>
+            <div class="stat-value" id="totalMerchants">0</div>
         </div>
-
-        <div class="stats-bar">
-            <div class="stat-card">
-                <div class="stat-label">Total Merchants</div>
-                <div class="stat-value" id="totalMerchants">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Active Today</div>
-                <div class="stat-value" id="activeToday">0</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-label">Last Updated</div>
-                <div class="stat-value" style="font-size: 16px; margin-top: 8px;" id="lastUpdated">-</div>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Active Today</div>
+            <div class="stat-value" id="activeToday">0</div>
         </div>
-
-        <div class="search-bar">
-            <input type="text" id="searchInput" class="search-input" placeholder="Search by merchant name or code..." oninput="filterMerchants()">
-        </div>
-
-        <div class="table-container">
-            <div id="loadingState" class="loading">
-                <div class="spinner"></div>
-                <p>Loading merchants...</p>
-            </div>
-            
-            <table id="merchantsTable" style="display: none;">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Merchant Name</th>
-                        <th>Merchant Code</th>
-                        <th>City</th>
-                        <th>Created</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="merchantsTableBody">
-                    <!-- Rows will be inserted here -->
-                </tbody>
-            </table>
-            
-            <div id="emptyState" class="empty-state" style="display: none;">
-                <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
-                <p>No merchants found</p>
-            </div>
+        <div class="stat-card">
+            <div class="stat-label">Last Updated</div>
+            <div class="stat-value" style="font-size:15px;margin-top:6px;" id="lastUpdated">-</div>
         </div>
     </div>
 
-    <!-- Edit Modal -->
-    <div id="editModal" class="modal-overlay">
-        <div class="modal">
-            <h2>Edit Merchant</h2>
-            <input type="hidden" id="editId">
-            <div class="form-group">
-                <label>Merchant Name</label>
-                <input type="text" id="editName" placeholder="e.g., Vision Énergie">
-            </div>
-            <div class="form-group">
-                <label>Merchant Code</label>
-                <input type="text" id="editCode" placeholder="e.g., 677123456" readonly style="opacity: 0.5;">
-            </div>
-            <div class="form-group">
-                <label>City</label>
-                <input type="text" id="editCity" placeholder="e.g., YAOUNDE">
-            </div>
-            <div class="modal-actions">
-                <button onclick="closeEditModal()" class="btn btn-secondary">Cancel</button>
-                <button onclick="saveEdit()" class="btn btn-primary">Save Changes</button>
-            </div>
-        </div>
+    <div class="search-bar">
+        <input type="text" id="searchInput" class="search-input" placeholder="Search by name or code..." oninput="filterMerchants()">
     </div>
 
-    <!-- Delete Confirmation Modal -->
-    <div id="deleteModal" class="modal-overlay">
-        <div class="modal delete-confirm">
-            <h2 style="color: #ef4444;">Delete Merchant</h2>
-            <p>Are you sure you want to delete merchant:</p>
-            <p class="merchant-highlight" id="deleteMerchantName">-</p>
-            <p>This action cannot be undone.</p>
-            <input type="hidden" id="deleteId">
-            <div class="modal-actions">
-                <button onclick="closeDeleteModal()" class="btn btn-secondary">Cancel</button>
-                <button onclick="confirmDelete()" class="btn btn-danger">Delete Permanently</button>
-            </div>
+    <!-- Desktop Table -->
+    <div class="table-container">
+        <div id="loadingState" class="loading">
+            <div class="spinner"></div>
+            <p>Loading merchants...</p>
         </div>
-    </div>
-
-    <!-- QR Preview Modal -->
-    <div id="qrModal" class="modal-overlay qr-modal">
-        <div class="modal">
-            <h2>QR Code Preview</h2>
-            <div class="qr-preview-container">
-                <div class="qr-preview-title" id="qrMerchantName">Merchant Name</div>
-                <div id="qrPreview"></div>
-                <div class="qr-preview-info" id="qrMerchantInfo">Code: 677123456 | City: YAOUNDE</div>
-            </div>
-            <div class="modal-actions">
-                <button onclick="closeQRModal()" class="btn btn-secondary">Close</button>
-                <button onclick="printQRFromModal()" class="btn btn-primary">
-                    <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24" style="margin-right: 8px;"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
-                    Print
-                </button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Toast Notification -->
-    <div id="toast" class="toast"></div>
-
-    <script type="module">
-        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
-        
-        const supabaseUrl = 'https://vnqysheyehtyciswsoua.supabase.co'
-        const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZucXlzaGV5ZWh0eWNpc3dzb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNDI2MTUsImV4cCI6MjA5MTgxODYxNX0.rVcG0TKrnNPsoSPiGIvNdSPtt7zFBk0PO32xvku-_fk'
-        
-        const supabase = createClient(supabaseUrl, supabaseKey)
-        
-        window.supabase = supabase
-    </script>
-
-    <script>
-        let allMerchants = [];
-        let currentQRCode = null;
-
-        // Login
-        function login() {
-            const username = document.getElementById('username').value;
-            const password = document.getElementById('password').value;
-            
-            if (username === 'admin' && password === 'admin') {
-                document.getElementById('loginModal').style.display = 'none';
-                document.getElementById('dashboard').style.display = 'block';
-                loadMerchants();
-            } else {
-                document.getElementById('loginError').classList.add('show');
-                setTimeout(() => {
-                    document.getElementById('loginError').classList.remove('show');
-                }, 3000);
-            }
-        }
-
-        // Logout
-        function logout() {
-            document.getElementById('dashboard').style.display = 'none';
-            document.getElementById('loginModal').style.display = 'flex';
-            document.getElementById('username').value = '';
-            document.getElementById('password').value = '';
-        }
-
-        // Load Merchants
-        async function loadMerchants() {
-            document.getElementById('loadingState').style.display = 'block';
-            document.getElementById('merchantsTable').style.display = 'none';
-            document.getElementById('emptyState').style.display = 'none';
-
-            try {
-                const { data, error } = await window.supabase
-                    .from('merchant_qr_codes')
-                    .select('*')
-                    .order('created_at', { ascending: false });
-
-                if (error) throw error;
-
-                allMerchants = data || [];
-                displayMerchants(allMerchants);
-                updateStats(allMerchants);
-                
-            } catch (error) {
-                console.error('Error loading merchants:', error);
-                showToast('Error loading merchants', 'error');
-            }
-        }
-
-        // Display Merchants
-        function displayMerchants(merchants) {
-            document.getElementById('loadingState').style.display = 'none';
-            
-            if (merchants.length === 0) {
-                document.getElementById('merchantsTable').style.display = 'none';
-                document.getElementById('emptyState').style.display = 'block';
-                return;
-            }
-
-            document.getElementById('merchantsTable').style.display = 'table';
-            document.getElementById('emptyState').style.display = 'none';
-
-            const tbody = document.getElementById('merchantsTableBody');
-            tbody.innerHTML = merchants.map(m => `
+        <table id="merchantsTable" style="display:none;">
+            <thead>
                 <tr>
-                    <td>${m.id.substring(0, 8)}...</td>
-                    <td class="merchant-name">${escapeHtml(m.merchant_name)}</td>
-                    <td><span class="merchant-code">${m.merchant_code}</span></td>
-                    <td>${escapeHtml(m.city)}</td>
-                    <td>${formatDate(m.created_at)}</td>
-                    <td>
-                        <div class="action-btns">
-                            <button onclick="openEditModal('${m.id}')" class="action-btn" style="background: #3b82f6; color: white;">Edit</button>
-                            <button onclick="openQRModal('${m.id}')" class="action-btn" style="background: var(--mtn-yellow); color: black;">Print</button>
-                            <button onclick="openDeleteModal('${m.id}')" class="action-btn" style="background: #ef4444; color: white;">Delete</button>
-                        </div>
-                    </td>
+                    <th>ID</th>
+                    <th>Merchant Name</th>
+                    <th>Code</th>
+                    <th>City</th>
+                    <th>Created</th>
+                    <th>Actions</th>
                 </tr>
-            `).join('');
-        }
+            </thead>
+            <tbody id="merchantsTableBody"></tbody>
+        </table>
+        <div id="emptyState" class="empty-state" style="display:none;">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <p>No merchants found</p>
+        </div>
+    </div>
 
-        // Filter Merchants
-        function filterMerchants() {
-            const searchTerm = document.getElementById('searchInput').value.toLowerCase();
-            const filtered = allMerchants.filter(m => 
-                m.merchant_name.toLowerCase().includes(searchTerm) ||
-                m.merchant_code.includes(searchTerm)
-            );
-            displayMerchants(filtered);
-        }
+    <!-- Mobile Cards -->
+    <div id="merchantCards">
+        <div id="cardsLoadingState" class="loading">
+            <div class="spinner"></div>
+            <p>Loading merchants...</p>
+        </div>
+        <div id="merchantCardsBody"></div>
+        <div id="cardsEmptyState" class="empty-state" style="display:none;">
+            <svg fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            <p>No merchants found</p>
+        </div>
+    </div>
+</div>
 
-        // Update Stats
-        function updateStats(merchants) {
-            document.getElementById('totalMerchants').textContent = merchants.length;
-            
-            // Count merchants updated today
-            const today = new Date().toDateString();
-            const todayCount = merchants.filter(m => 
-                new Date(m.updated_at || m.created_at).toDateString() === today
-            ).length;
-            document.getElementById('activeToday').textContent = todayCount;
-            
-            document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
-        }
+<!-- Edit Modal -->
+<div id="editModal" class="modal-overlay">
+    <div class="modal">
+        <h2>Edit Merchant</h2>
+        <input type="hidden" id="editId">
+        <div class="form-group">
+            <label>Merchant Name</label>
+            <input type="text" id="editName" placeholder="e.g., Vision Énergie">
+        </div>
+        <div class="form-group">
+            <label>Merchant Code</label>
+            <input type="text" id="editCode" placeholder="e.g., 677123456" readonly style="opacity:.5;">
+        </div>
+        <div class="form-group">
+            <label>City</label>
+            <input type="text" id="editCity" placeholder="e.g., YAOUNDE">
+        </div>
+        <div class="modal-actions">
+            <button onclick="closeEditModal()" class="btn btn-secondary">Cancel</button>
+            <button onclick="saveEdit()" class="btn btn-primary">Save Changes</button>
+        </div>
+    </div>
+</div>
 
-        // Edit Modal
-        function openEditModal(id) {
-            const merchant = allMerchants.find(m => m.id === id);
-            if (!merchant) return;
+<!-- Delete Modal -->
+<div id="deleteModal" class="modal-overlay">
+    <div class="modal delete-confirm">
+        <h2 style="color:#ef4444;">Delete Merchant</h2>
+        <p>Are you sure you want to delete merchant:</p>
+        <p class="merchant-highlight" id="deleteMerchantName">-</p>
+        <p>This action cannot be undone.</p>
+        <input type="hidden" id="deleteId">
+        <div class="modal-actions">
+            <button onclick="closeDeleteModal()" class="btn btn-secondary">Cancel</button>
+            <button onclick="confirmDelete()" class="btn btn-danger">Delete</button>
+        </div>
+    </div>
+</div>
 
-            document.getElementById('editId').value = id;
-            document.getElementById('editName').value = merchant.merchant_name;
-            document.getElementById('editCode').value = merchant.merchant_code;
-            document.getElementById('editCity').value = merchant.city;
-            
-            document.getElementById('editModal').classList.add('show');
-        }
+<!-- QR Modal -->
+<div id="qrModal" class="modal-overlay qr-modal">
+    <div class="modal">
+        <h2>QR Code Preview</h2>
+        <div class="qr-preview-container">
+            <div class="qr-preview-title" id="qrMerchantName">Merchant Name</div>
+            <div id="qrPreview" style="display:flex;justify-content:center;"></div>
+            <div class="qr-preview-info" id="qrMerchantInfo">Code: 677123456 | City: YAOUNDE</div>
+        </div>
+        <div class="modal-actions">
+            <button onclick="closeQRModal()" class="btn btn-secondary">Close</button>
+            <button onclick="window.print()" class="btn btn-primary">
+                <svg width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z"/></svg>
+                Print
+            </button>
+        </div>
+    </div>
+</div>
 
-        function closeEditModal() {
-            document.getElementById('editModal').classList.remove('show');
-        }
+<div id="toast" class="toast"></div>
 
-        async function saveEdit() {
-            const id = document.getElementById('editId').value;
-            const name = document.getElementById('editName').value.trim();
-            const city = document.getElementById('editCity').value.trim();
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.39.0'
+    const supabaseUrl = 'https://vnqysheyehtyciswsoua.supabase.co'
+    const supabaseKey = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InZucXlzaGV5ZWh0eWNpc3dzb3VhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyNDI2MTUsImV4cCI6MjA5MTgxODYxNX0.rVcG0TKrnNPsoSPiGIvNdSPtt7zFBk0PO32xvku-_fk'
+    window.supabase = createClient(supabaseUrl, supabaseKey)
+</script>
 
-            if (!name || !city) {
-                showToast('Please fill in all fields', 'error');
-                return;
-            }
+<script>
+    let allMerchants = [];
+    let currentQRCode = null;
 
-            try {
-                const { error } = await window.supabase
-                    .from('merchant_qr_codes')
-                    .update({ 
-                        merchant_name: name, 
-                        city: city,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', id);
-
-                if (error) throw error;
-
-                showToast('Merchant updated successfully', 'success');
-                closeEditModal();
-                loadMerchants();
-                
-            } catch (error) {
-                console.error('Error updating merchant:', error);
-                showToast('Error updating merchant', 'error');
-            }
-        }
-
-        // Delete Modal
-        function openDeleteModal(id) {
-            const merchant = allMerchants.find(m => m.id === id);
-            if (!merchant) return;
-
-            document.getElementById('deleteId').value = id;
-            document.getElementById('deleteMerchantName').textContent = merchant.merchant_name;
-            document.getElementById('deleteModal').classList.add('show');
-        }
-
-        function closeDeleteModal() {
-            document.getElementById('deleteModal').classList.remove('show');
-        }
-
-        async function confirmDelete() {
-            const id = document.getElementById('deleteId').value;
-
-            try {
-                const { error } = await window.supabase
-                    .from('merchant_qr_codes')
-                    .delete()
-                    .eq('id', id);
-
-                if (error) throw error;
-
-                showToast('Merchant deleted successfully', 'success');
-                closeDeleteModal();
-                loadMerchants();
-                
-            } catch (error) {
-                console.error('Error deleting merchant:', error);
-                showToast('Error deleting merchant', 'error');
-            }
-        }
-
-        // QR Modal
-        function openQRModal(id) {
-            const merchant = allMerchants.find(m => m.id === id);
-            if (!merchant) return;
-
-            document.getElementById('qrMerchantName').textContent = merchant.merchant_name;
-            document.getElementById('qrMerchantInfo').textContent = `Code: ${merchant.merchant_code} | City: ${merchant.city}`;
-
-            // Generate QR
-            const qrContainer = document.getElementById('qrPreview');
-            qrContainer.innerHTML = '';
-            
-            const qrPayload = generateMomoPayload(merchant.merchant_name, merchant.merchant_code, merchant.city);
-            
-            currentQRCode = new QRCode(qrContainer, {
-                text: qrPayload,
-                width: 200,
-                height: 200,
-                colorDark: '#004F91',
-                colorLight: '#ffffff',
-                correctLevel: QRCode.CorrectLevel.H
-            });
-
-            document.getElementById('qrModal').classList.add('show');
-        }
-
-        function closeQRModal() {
-            document.getElementById('qrModal').classList.remove('show');
-            currentQRCode = null;
-        }
-
-        function printQRFromModal() {
-            window.print();
-        }
-
-        // Generate Momo Payload
-        function generateMomoPayload(name, code, city) {
-            const cleanName = name.substring(0, 14).toLowerCase();
-            const cleanCity = city.substring(0, 14).toUpperCase();
-            
-            let payload = "00020101021135370014A0000006561010010512002020";
-            payload += code;
-            payload += "5204411153039505802CM59";
-            payload += cleanName.length.toString().padStart(2, '0') + cleanName;
-            payload += "60";
-            payload += cleanCity.length.toString().padStart(2, '0') + cleanCity;
-            payload += "6250110300050390014A00000065610100117merchant_purchase63040EBD";
-            
-            return payload;
-        }
-
-        // Export to Excel
-        function exportToExcel() {
-            if (allMerchants.length === 0) {
-                showToast('No data to export', 'error');
-                return;
-            }
-
-            const exportData = allMerchants.map(m => ({
-                'Merchant Name': m.merchant_name,
-                'Merchant Code': m.merchant_code,
-                'City': m.city,
-                'QR Payload': m.qr_payload,
-                'Created At': new Date(m.created_at).toLocaleString(),
-                'Updated At': m.updated_at ? new Date(m.updated_at).toLocaleString() : '-'
-            }));
-
-            const ws = XLSX.utils.json_to_sheet(exportData);
-            const wb = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(wb, ws, 'Merchants');
-            
-            const dateStr = new Date().toISOString().split('T')[0];
-            XLSX.writeFile(wb, `MTN_Merchants_${dateStr}.xlsx`);
-            
-            showToast('Excel file downloaded', 'success');
-        }
-
-        // Export to PDF
-        function exportToPDF() {
-            if (allMerchants.length === 0) {
-                showToast('No data to export', 'error');
-                return;
-            }
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-
-            // Title
-            doc.setFontSize(20);
-            doc.setTextColor(0, 79, 145);
-            doc.text('MTN QR Merchant Report', 105, 20, { align: 'center' });
-            
-            // Date
-            doc.setFontSize(12);
-            doc.setTextColor(100);
-            doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 30, { align: 'center' });
-            
-            // Stats
-            doc.setFontSize(14);
-            doc.setTextColor(0);
-            doc.text(`Total Merchants: ${allMerchants.length}`, 20, 45);
-            
-            // Table
-            let y = 60;
-            doc.setFontSize(10);
-            doc.setFillColor(0, 79, 145);
-            doc.rect(20, y - 5, 170, 10, 'F');
-            doc.setTextColor(255);
-            doc.text('Name', 25, y);
-            doc.text('Code', 85, y);
-            doc.text('City', 125, y);
-            doc.text('Created', 155, y);
-            
-            y += 10;
-            doc.setTextColor(0);
-            
-            allMerchants.slice(0, 50).forEach((m, i) => {
-                if (y > 270) {
-                    doc.addPage();
-                    y = 20;
-                }
-                
-                if (i % 2 === 0) {
-                    doc.setFillColor(245, 245, 245);
-                    doc.rect(20, y - 5, 170, 8, 'F');
-                }
-                
-                doc.text(m.merchant_name.substring(0, 25), 25, y);
-                doc.text(m.merchant_code, 85, y);
-                doc.text(m.city, 125, y);
-                doc.text(formatDateShort(m.created_at), 155, y);
-                
-                y += 8;
-            });
-
-            const dateStr = new Date().toISOString().split('T')[0];
-            doc.save(`MTN_Merchants_${dateStr}.pdf`);
-            
-            showToast('PDF file downloaded', 'success');
-        }
-
-        // Refresh
-        function refreshData() {
+    function login() {
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+        if (username === 'admin' && password === 'admin') {
+            document.getElementById('loginModal').style.display = 'none';
+            document.getElementById('dashboard').style.display = 'block';
             loadMerchants();
-            showToast('Data refreshed', 'success');
+        } else {
+            const err = document.getElementById('loginError');
+            err.classList.add('show');
+            setTimeout(() => err.classList.remove('show'), 3000);
+        }
+    }
+
+    function logout() {
+        document.getElementById('dashboard').style.display = 'none';
+        document.getElementById('loginModal').style.display = 'flex';
+        document.getElementById('username').value = '';
+        document.getElementById('password').value = '';
+    }
+
+    async function loadMerchants() {
+        // Show loaders
+        document.getElementById('loadingState').style.display = 'block';
+        document.getElementById('merchantsTable').style.display = 'none';
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('cardsLoadingState').style.display = 'block';
+        document.getElementById('merchantCardsBody').innerHTML = '';
+        document.getElementById('cardsEmptyState').style.display = 'none';
+
+        try {
+            const { data, error } = await window.supabase
+                .from('merchant_qr_codes')
+                .select('*')
+                .order('created_at', { ascending: false });
+            if (error) throw error;
+            allMerchants = data || [];
+            displayMerchants(allMerchants);
+            updateStats(allMerchants);
+        } catch (e) {
+            console.error(e);
+            showToast('Error loading merchants', 'error');
+        }
+    }
+
+    function displayMerchants(merchants) {
+        // ── Desktop table ──
+        document.getElementById('loadingState').style.display = 'none';
+        document.getElementById('cardsLoadingState').style.display = 'none';
+
+        if (merchants.length === 0) {
+            document.getElementById('merchantsTable').style.display = 'none';
+            document.getElementById('emptyState').style.display = 'block';
+            document.getElementById('merchantCardsBody').innerHTML = '';
+            document.getElementById('cardsEmptyState').style.display = 'block';
+            return;
         }
 
-        // Toast
-        function showToast(message, type) {
-            const toast = document.getElementById('toast');
-            toast.textContent = message;
-            toast.className = `toast ${type}`;
-            toast.classList.add('show');
-            
-            setTimeout(() => {
-                toast.classList.remove('show');
-            }, 3000);
-        }
+        document.getElementById('merchantsTable').style.display = 'table';
+        document.getElementById('emptyState').style.display = 'none';
+        document.getElementById('cardsEmptyState').style.display = 'none';
 
-        // Helper Functions
-        function escapeHtml(text) {
-            const div = document.createElement('div');
-            div.textContent = text;
-            return div.innerHTML;
-        }
+        // Table rows
+        document.getElementById('merchantsTableBody').innerHTML = merchants.map(m => `
+            <tr>
+                <td style="color:rgba(255,255,255,.4);font-size:11px;font-family:monospace;">${m.id.substring(0,8)}…</td>
+                <td class="merchant-name">${escapeHtml(m.merchant_name)}</td>
+                <td><span class="merchant-code">${m.merchant_code}</span></td>
+                <td style="color:rgba(255,255,255,.75);">${escapeHtml(m.city)}</td>
+                <td style="color:rgba(255,255,255,.5);font-size:12px;">${formatDate(m.created_at)}</td>
+                <td>
+                    <div class="action-btns">
+                        <button onclick="openEditModal('${m.id}')" class="action-btn" style="background:#3b82f6;color:white;">Edit</button>
+                        <button onclick="openQRModal('${m.id}')" class="action-btn" style="background:var(--mtn-yellow);color:black;">Print</button>
+                        <button onclick="openDeleteModal('${m.id}')" class="action-btn" style="background:#ef4444;color:white;">Delete</button>
+                    </div>
+                </td>
+            </tr>
+        `).join('');
 
-        function formatDate(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-GB', { 
-                day: '2-digit', 
-                month: 'short', 
-                year: 'numeric' 
-            });
-        }
+        // ── Mobile cards ──
+        document.getElementById('merchantCardsBody').innerHTML = merchants.map(m => `
+            <div class="merchant-card">
+                <div class="card-top">
+                    <div>
+                        <div class="card-name">${escapeHtml(m.merchant_name)}</div>
+                        <div class="card-id">${m.id.substring(0,8)}…</div>
+                    </div>
+                    <span class="merchant-code" style="flex-shrink:0;">${m.merchant_code}</span>
+                </div>
+                <div class="card-meta">
+                    <div class="card-meta-item">
+                        <div class="card-meta-label">City</div>
+                        <div class="card-meta-value">${escapeHtml(m.city)}</div>
+                    </div>
+                    <div class="card-meta-item">
+                        <div class="card-meta-label">Created</div>
+                        <div class="card-meta-value">${formatDate(m.created_at)}</div>
+                    </div>
+                </div>
+                <div class="card-actions">
+                    <button onclick="openEditModal('${m.id}')" class="card-action-btn" style="background:#3b82f6;color:white;">✏️ Edit</button>
+                    <button onclick="openQRModal('${m.id}')" class="card-action-btn" style="background:var(--mtn-yellow);color:black;">🖨 Print</button>
+                    <button onclick="openDeleteModal('${m.id}')" class="card-action-btn" style="background:#ef4444;color:white;">🗑 Delete</button>
+                </div>
+            </div>
+        `).join('');
+    }
 
-        function formatDateShort(dateStr) {
-            const date = new Date(dateStr);
-            return date.toLocaleDateString('en-GB', { 
-                day: '2-digit', 
-                month: '2-digit',
-                year: '2-digit'
-            });
-        }
+    function filterMerchants() {
+        const q = document.getElementById('searchInput').value.toLowerCase();
+        const filtered = allMerchants.filter(m =>
+            m.merchant_name.toLowerCase().includes(q) || m.merchant_code.includes(q)
+        );
+        displayMerchants(filtered);
+    }
 
-        // Enter key on login
-        document.getElementById('password').addEventListener('keypress', function(e) {
-            if (e.key === 'Enter') login();
+    function updateStats(merchants) {
+        document.getElementById('totalMerchants').textContent = merchants.length;
+        const today = new Date().toDateString();
+        document.getElementById('activeToday').textContent =
+            merchants.filter(m => new Date(m.updated_at || m.created_at).toDateString() === today).length;
+        document.getElementById('lastUpdated').textContent = new Date().toLocaleTimeString();
+    }
+
+    function openEditModal(id) {
+        const m = allMerchants.find(x => x.id === id);
+        if (!m) return;
+        document.getElementById('editId').value = id;
+        document.getElementById('editName').value = m.merchant_name;
+        document.getElementById('editCode').value = m.merchant_code;
+        document.getElementById('editCity').value = m.city;
+        document.getElementById('editModal').classList.add('show');
+    }
+    function closeEditModal() { document.getElementById('editModal').classList.remove('show'); }
+
+    async function saveEdit() {
+        const id = document.getElementById('editId').value;
+        const name = document.getElementById('editName').value.trim();
+        const city = document.getElementById('editCity').value.trim();
+        if (!name || !city) { showToast('Please fill in all fields', 'error'); return; }
+        try {
+            const { error } = await window.supabase.from('merchant_qr_codes')
+                .update({ merchant_name: name, city, updated_at: new Date().toISOString() }).eq('id', id);
+            if (error) throw error;
+            showToast('Merchant updated', 'success');
+            closeEditModal();
+            loadMerchants();
+        } catch(e) { showToast('Error updating', 'error'); }
+    }
+
+    function openDeleteModal(id) {
+        const m = allMerchants.find(x => x.id === id);
+        if (!m) return;
+        document.getElementById('deleteId').value = id;
+        document.getElementById('deleteMerchantName').textContent = m.merchant_name;
+        document.getElementById('deleteModal').classList.add('show');
+    }
+    function closeDeleteModal() { document.getElementById('deleteModal').classList.remove('show'); }
+
+    async function confirmDelete() {
+        const id = document.getElementById('deleteId').value;
+        try {
+            const { error } = await window.supabase.from('merchant_qr_codes').delete().eq('id', id);
+            if (error) throw error;
+            showToast('Merchant deleted', 'success');
+            closeDeleteModal();
+            loadMerchants();
+        } catch(e) { showToast('Error deleting', 'error'); }
+    }
+
+    function openQRModal(id) {
+        const m = allMerchants.find(x => x.id === id);
+        if (!m) return;
+        document.getElementById('qrMerchantName').textContent = m.merchant_name;
+        document.getElementById('qrMerchantInfo').textContent = `Code: ${m.merchant_code} | City: ${m.city}`;
+        const container = document.getElementById('qrPreview');
+        container.innerHTML = '';
+        currentQRCode = new QRCode(container, {
+            text: generateMomoPayload(m.merchant_name, m.merchant_code, m.city),
+            width: 200, height: 200, colorDark: '#004F91', colorLight: '#ffffff',
+            correctLevel: QRCode.CorrectLevel.H
         });
+        document.getElementById('qrModal').classList.add('show');
+    }
+    function closeQRModal() { document.getElementById('qrModal').classList.remove('show'); currentQRCode = null; }
 
-        // Make functions global
-        window.login = login;
-        window.logout = logout;
-        window.filterMerchants = filterMerchants;
-        window.openEditModal = openEditModal;
-        window.closeEditModal = closeEditModal;
-        window.saveEdit = saveEdit;
-        window.openDeleteModal = openDeleteModal;
-        window.closeDeleteModal = closeDeleteModal;
-        window.confirmDelete = confirmDelete;
-        window.openQRModal = openQRModal;
-        window.closeQRModal = closeQRModal;
-        window.printQRFromModal = printQRFromModal;
-        window.exportToExcel = exportToExcel;
-        window.exportToPDF = exportToPDF;
-        window.refreshData = refreshData;
-    </script>
+    function generateMomoPayload(name, code, city) {
+        const cleanName = name.substring(0,14).toLowerCase();
+        const cleanCity = city.substring(0,14).toUpperCase();
+        let p = "00020101021135370014A0000006561010010512002020";
+        p += code + "5204411153039505802CM59";
+        p += cleanName.length.toString().padStart(2,'0') + cleanName;
+        p += "60" + cleanCity.length.toString().padStart(2,'0') + cleanCity;
+        p += "6250110300050390014A00000065610100117merchant_purchase63040EBD";
+        return p;
+    }
+
+    function exportToExcel() {
+        if (!allMerchants.length) { showToast('No data to export', 'error'); return; }
+        const ws = XLSX.utils.json_to_sheet(allMerchants.map(m => ({
+            'Merchant Name': m.merchant_name, 'Merchant Code': m.merchant_code,
+            'City': m.city, 'QR Payload': m.qr_payload,
+            'Created At': new Date(m.created_at).toLocaleString(),
+            'Updated At': m.updated_at ? new Date(m.updated_at).toLocaleString() : '-'
+        })));
+        const wb = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(wb, ws, 'Merchants');
+        XLSX.writeFile(wb, `MTN_Merchants_${new Date().toISOString().split('T')[0]}.xlsx`);
+        showToast('Excel downloaded', 'success');
+    }
+
+    function exportToPDF() {
+        if (!allMerchants.length) { showToast('No data to export', 'error'); return; }
+        const { jsPDF } = window.jspdf;
+        const doc = new jsPDF();
+        doc.setFontSize(20); doc.setTextColor(0,79,145);
+        doc.text('MTN QR Merchant Report', 105, 20, { align: 'center' });
+        doc.setFontSize(12); doc.setTextColor(100);
+        doc.text(`Generated on: ${new Date().toLocaleString()}`, 105, 30, { align: 'center' });
+        doc.setFontSize(14); doc.setTextColor(0);
+        doc.text(`Total Merchants: ${allMerchants.length}`, 20, 45);
+        let y = 60;
+        doc.setFontSize(10);
+        doc.setFillColor(0,79,145); doc.rect(20, y-5, 170, 10, 'F');
+        doc.setTextColor(255);
+        doc.text('Name', 25, y); doc.text('Code', 85, y); doc.text('City', 125, y); doc.text('Created', 155, y);
+        y += 10; doc.setTextColor(0);
+        allMerchants.slice(0,50).forEach((m, i) => {
+            if (y > 270) { doc.addPage(); y = 20; }
+            if (i % 2 === 0) { doc.setFillColor(245,245,245); doc.rect(20, y-5, 170, 8, 'F'); }
+            doc.text(m.merchant_name.substring(0,25), 25, y);
+            doc.text(m.merchant_code, 85, y);
+            doc.text(m.city, 125, y);
+            doc.text(formatDateShort(m.created_at), 155, y);
+            y += 8;
+        });
+        doc.save(`MTN_Merchants_${new Date().toISOString().split('T')[0]}.pdf`);
+        showToast('PDF downloaded', 'success');
+    }
+
+    function refreshData() { loadMerchants(); showToast('Data refreshed', 'success'); }
+
+    function showToast(msg, type) {
+        const t = document.getElementById('toast');
+        t.textContent = msg; t.className = `toast ${type}`; t.classList.add('show');
+        setTimeout(() => t.classList.remove('show'), 3000);
+    }
+
+    function escapeHtml(text) {
+        const d = document.createElement('div'); d.textContent = text; return d.innerHTML;
+    }
+    function formatDate(s) {
+        return new Date(s).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+    }
+    function formatDateShort(s) {
+        return new Date(s).toLocaleDateString('en-GB', { day:'2-digit', month:'2-digit', year:'2-digit' });
+    }
+
+    document.getElementById('password').addEventListener('keypress', e => { if (e.key === 'Enter') login(); });
+
+    window.login = login; window.logout = logout;
+    window.filterMerchants = filterMerchants;
+    window.openEditModal = openEditModal; window.closeEditModal = closeEditModal; window.saveEdit = saveEdit;
+    window.openDeleteModal = openDeleteModal; window.closeDeleteModal = closeDeleteModal; window.confirmDelete = confirmDelete;
+    window.openQRModal = openQRModal; window.closeQRModal = closeQRModal;
+    window.exportToExcel = exportToExcel; window.exportToPDF = exportToPDF;
+    window.refreshData = refreshData;
+</script>
 </body>
 </html>

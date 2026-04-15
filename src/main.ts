@@ -1,13 +1,13 @@
 import './style.css'
 
 const container = document.getElementById('particle-container');
-const particleCount = 40;
+const particleCount = 100;
 
 if (container) {
     for (let i = 0; i < particleCount; i++) {
         const particle = document.createElement('div');
         particle.className = 'particle';
-        const size = Math.random() * 4 + 2 + 'px';
+        const size = Math.random() * 6 + 3 + 'px';
         particle.style.width = size;
         particle.style.height = size;
         particle.style.left = Math.random() * 100 + 'vw';
