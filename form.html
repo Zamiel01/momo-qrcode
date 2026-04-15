@@ -406,7 +406,7 @@
             <h2>Merchant Portal</h2>
             <p style="font-weight:600;margin-bottom:6px;font-size:14px;">Have you generated a QR code with us before?</p>
             <p>Enter your merchant code below to retrieve your existing QR code poster, or select "I am a new merchant" to create one.</p>
-            <input type="text" id="checkMerchantCode" class="modal-input" placeholder="Enter your merchant code (e.g., 12XX)" maxlength="15">
+            <input type="text" id="checkMerchantCode" class="modal-input" placeholder="Enter your 6-digit code (e.g., 123456)" maxlength="6" pattern="[0-9]{6}" inputmode="numeric">
             <button onclick="checkMerchant()" class="modal-btn">RETRIEVE MY QR CODE</button>
             <div class="modal-divider"><span>Or</span></div>
             <button onclick="skipCheck()" class="modal-btn secondary">I am a new merchant</button>
@@ -449,7 +449,7 @@
                     <div class="two-col-grid">
                         <div class="field-group">
                             <label class="field-label">Merchant Code (Momo) *</label>
-                            <input type="text" id="inputCode" oninput="updatePoster()" placeholder="677227..." class="field-input" inputmode="numeric">
+                            <input type="text" id="inputCode" oninput="updatePoster()" placeholder="123456" class="field-input" inputmode="numeric" maxlength="6" pattern="[0-9]{6}">
                         </div>
                         <div class="field-group">
                             <label class="field-label">City *</label>
@@ -568,7 +568,7 @@
             if (!name) errors.push('Merchant name is required');
             if (!code) errors.push('Merchant code is required');
             if (!city) errors.push('City is required');
-            if (code && !/^\d+$/.test(code)) errors.push('Merchant code must contain only numbers');
+            if (code && !/^\d{6}$/.test(code)) errors.push('Merchant code must be exactly 6 digits');
             return errors;
         }
 
